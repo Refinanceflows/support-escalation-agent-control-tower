@@ -16,7 +16,7 @@ The control tower is organized as an async FastAPI application with explicit ser
 
 ## Persistence
 
-The default persistence layer is a JSON state file configured by `CONTROL_TOWER_STATE_FILE`. It stores:
+The default persistence layer is a local SQLite database configured by `CONTROL_TOWER_STATE_FILE`. The app stores one versioned state document in SQLite for the local portfolio runtime, while the service boundary keeps the project ready for a more normalized Postgres repository later. It stores:
 
 - tickets
 - workflow runs
@@ -25,7 +25,7 @@ The default persistence layer is a JSON state file configured by `CONTROL_TOWER_
 - audit events
 - aggregate metrics
 
-This keeps local setup dependency-free while still persisting state across process restarts.
+This keeps local setup dependency-free while still using a real durable database that persists state across process restarts.
 
 ## Provider Boundary
 
@@ -36,4 +36,3 @@ The project runs locally with `LocalMockLlmProvider`. Optional OpenAI or Azure O
 All business endpoints require `x-api-key` or `Authorization: Bearer`. `/health` and `/auth/demo-token` are open for local demo use.
 
 Every request gets an `x-trace-id`. Workflow runs get their own durable trace ID and trace events for node starts, node completions, tool calls, errors, latency, token use, cost, final action, and failure state.
-

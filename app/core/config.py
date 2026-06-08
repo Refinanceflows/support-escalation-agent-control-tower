@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="CONTROL_TOWER_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
     env: str = "local"
     app_name: str = "Support Escalation Agent Control Tower"
-    state_file: Path = Path("data/control_tower_state.json")
+    state_file: Path = Path("data/control_tower_state.db")
     api_keys: str = "demo-control-tower-key"
     demo_api_key: str = "demo-control-tower-key"
     log_level: str = "INFO"
@@ -25,4 +25,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

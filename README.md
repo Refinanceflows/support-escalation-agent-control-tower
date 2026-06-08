@@ -14,7 +14,7 @@ The default mode uses deterministic local/mock providers, so a fresh clone runs 
 - LangGraph workflow orchestration with a documented sequential fallback if LangGraph cannot import
 - Required workflow nodes:
   `intake_classifier`, `sla_risk_scorer`, `knowledge_retriever`, `customer_reply_drafter`, `engineering_escalation_drafter`, `qa_evaluator`, `human_approval`, `finalizer`
-- File-based durable state for tickets, runs, traces, approvals, audit events, and metrics
+- SQLite-backed durable state for tickets, runs, traces, approvals, audit events, and metrics
 - Fake Zendesk, Jira, Slack, and internal KB adapters
 - Local mock LLM provider behind an interface
 - API key auth, structured logs, request trace IDs, audit events, token/latency/cost metrics
@@ -116,7 +116,7 @@ Important variables:
 
 - `CONTROL_TOWER_API_KEYS`: comma-separated accepted API keys
 - `CONTROL_TOWER_DEMO_API_KEY`: key returned by demo token endpoint
-- `CONTROL_TOWER_STATE_FILE`: JSON persistence path
+- `CONTROL_TOWER_STATE_FILE`: SQLite persistence path
 - `CONTROL_TOWER_MAX_TOOL_ATTEMPTS`: KB/tool retry limit
 - `CONTROL_TOWER_LOW_CONFIDENCE_THRESHOLD`: confidence threshold for review
 - `CONTROL_TOWER_SLA_HIGH_RISK_THRESHOLD`: escalation threshold
