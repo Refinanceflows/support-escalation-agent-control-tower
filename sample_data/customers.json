@@ -1,0 +1,7 @@
+[
+  {"customer": "Northstar Health", "segment": "Healthcare", "tier": "enterprise", "region": "US"},
+  {"customer": "Atlas Logistics", "segment": "Logistics", "tier": "enterprise", "region": "EU"},
+  {"customer": "BrightWorks Studio", "segment": "Media", "tier": "growth", "region": "US"},
+  {"customer": "Cobalt Retail", "segment": "Retail", "tier": "enterprise", "region": "US"},
+  {"customer": "Evergreen Bank", "segment": "Financial Services", "tier": "enterprise", "region": "US"}
+]

@@ -1,0 +1,40 @@
+[project]
+name = "support-escalation-agent-control-tower"
+version = "0.1.0"
+description = "Enterprise-grade support escalation agent control tower with FastAPI, LangGraph orchestration, approvals, tracing, and metrics."
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.30.0",
+  "pydantic>=2.7.0",
+  "pydantic-settings>=2.3.0",
+  "langgraph>=0.2.45",
+  "httpx>=0.27.0",
+  "python-dotenv>=1.0.1",
+  "tenacity>=8.3.0",
+  "streamlit>=1.36.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0",
+  "pytest-asyncio>=0.23.0",
+  "ruff>=0.5.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+

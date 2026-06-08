@@ -1,0 +1,5 @@
+{
+  "jira": {"project": "SUP", "issue_type": "Bug", "default_component": "support-platform"},
+  "slack": {"escalation_channel": "#support-escalations", "draft_channel": "#support-drafts"},
+  "zendesk": {"brand": "Demo Support", "view": "enterprise-sla-risk"}
+}

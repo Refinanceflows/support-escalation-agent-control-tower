@@ -1,0 +1,38 @@
+[
+  {
+    "article_id": "KB-101",
+    "title": "Authentication outage triage",
+    "content": "For SSO, login, OAuth, SAML, MFA, and authentication outages, check identity provider status, recent deploys, and affected tenant IDs before escalating to engineering.",
+    "tags": ["auth", "sso", "outage", "login", "sla"]
+  },
+  {
+    "article_id": "KB-205",
+    "title": "Billing and invoice correction policy",
+    "content": "Billing disputes require invoice ID, account owner confirmation, contract tier, and finance approval before credits or refunds are promised.",
+    "tags": ["billing", "invoice", "refund", "finance"]
+  },
+  {
+    "article_id": "KB-309",
+    "title": "API latency and 5xx escalation runbook",
+    "content": "For elevated 5xx, API latency, webhooks, and integration failures, collect request IDs, timestamps, region, and impact scope. Enterprise incidents require immediate escalation.",
+    "tags": ["api", "latency", "5xx", "integration", "enterprise"]
+  },
+  {
+    "article_id": "KB-412",
+    "title": "Data export and deletion safeguards",
+    "content": "Data export, deletion, privacy, and compliance tickets need human review. Do not promise deletion completion until the compliance queue approves the request.",
+    "tags": ["privacy", "data", "compliance", "security"]
+  },
+  {
+    "article_id": "KB-520",
+    "title": "General support response standards",
+    "content": "Acknowledge customer impact, avoid over-promising, cite the next action, and set a follow-up expectation. Risky replies should be approved by a human lead.",
+    "tags": ["reply", "support", "qa"]
+  },
+  {
+    "article_id": "KB-APIKEY-003",
+    "title": "API key rotation without downtime",
+    "content": "Create a secondary API key, deploy it to production clients, verify traffic on the new key, and only then revoke the old key. Enterprise requests involving security should be reviewed before promises are made.",
+    "tags": ["api", "security", "rotation", "integration"]
+  }
+]

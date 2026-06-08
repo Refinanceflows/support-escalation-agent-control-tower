@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.env
+control_tower.db
+*.db
+*.tmp
+data/
+debug_eval_state.json
+eval_control_tower_state.json
+eval_control_tower.db

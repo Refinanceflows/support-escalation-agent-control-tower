@@ -1,0 +1,35 @@
+[
+  {
+    "ticket": {
+      "subject": "Production login loop for all care coordinators",
+      "body": "All care coordinators cannot login and patient outreach is blocked.",
+      "priority": "urgent",
+      "customer_tier": "enterprise",
+      "tags": ["login", "incident"]
+    },
+    "expected_category": "incident",
+    "expected_route": "engineering_escalation"
+  },
+  {
+    "ticket": {
+      "subject": "Webhook sync regression after release",
+      "body": "Webhook deliveries return 500 errors after yesterday's deploy.",
+      "priority": "high",
+      "customer_tier": "enterprise",
+      "tags": ["webhook", "regression"]
+    },
+    "expected_category": "bug",
+    "expected_route": "engineering_escalation"
+  },
+  {
+    "ticket": {
+      "subject": "How do we rotate an API key?",
+      "body": "We need the safest process to rotate a production API key without downtime.",
+      "priority": "normal",
+      "customer_tier": "pro",
+      "tags": ["api", "security"]
+    },
+    "expected_category": "how_to",
+    "expected_route": "customer_reply"
+  }
+]

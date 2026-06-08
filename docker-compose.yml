@@ -1,0 +1,21 @@
+services:
+  api:
+    build: .
+    env_file:
+      - .env.example
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./sample_data:/app/sample_data:ro
+  dashboard:
+    build: .
+    command: streamlit run dashboard/streamlit_app.py --server.address=0.0.0.0 --server.port=8501
+    environment:
+      CONTROL_TOWER_API_BASE_URL: http://api:8000
+      CONTROL_TOWER_API_KEY: demo-control-tower-key
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+
