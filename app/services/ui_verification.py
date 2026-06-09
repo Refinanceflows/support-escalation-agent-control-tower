@@ -274,6 +274,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "GET /customers/renewal-risk",
+        "purpose": "Renewal risk workbench summary across local account health, sentiment, SLA drag, and blockers.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /customers/{customer_id_or_name}/renewal-review",
+        "purpose": "Renewal Risk Review artifact export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -301,6 +313,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Policy Guardrails",
         "producer_endpoint": "POST /policies/change-pack",
         "artifact_directory": "data/policy_change_packs",
+    },
+    {
+        "tab_label": "Customer Health / Account Brief",
+        "producer_endpoint": "POST /customers/{customer_id_or_name}/renewal-review",
+        "artifact_directory": "data/renewal_reviews",
     },
     {
         "tab_label": "Incident Narrative",

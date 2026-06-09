@@ -106,7 +106,9 @@ class ServiceContainer:
             self.tickets,
             self.playbooks,
             Path("sample_data/customers.json"),
+            Path("sample_data/account_health_inputs.json"),
             settings.state_file.parent / "account_briefs",
+            settings.state_file.parent / "renewal_reviews",
         )
         self.replay_lab = ReplayLabService(
             self.store,

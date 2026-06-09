@@ -80,6 +80,7 @@ REVIEWER_PURPOSES = {
     "data/checklists": "Remediation checklist proof tied to the selected playbook and run state.",
     "data/reports": "Weekly operations review evidence for local run, approval, outbox, and failure trends.",
     "data/account_briefs": "Customer/account health briefing evidence.",
+    "data/renewal_reviews": "Renewal-risk review proof with support sentiment, SLA drag, blockers, owner actions, and ARR exposure.",
     "data/optimization_reports": "SLO, latency, token, failure, and approval bottleneck recommendations.",
     "data/audit_packs": EXTRA_ARTIFACTS[0]["reviewer_purpose"],
     "data/artifact_indexes": EXTRA_ARTIFACTS[1]["reviewer_purpose"],

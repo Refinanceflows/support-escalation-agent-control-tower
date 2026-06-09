@@ -8,6 +8,8 @@ import streamlit as st
 API_BASE = os.getenv("CONTROL_TOWER_API_BASE_URL", "http://127.0.0.1:8000")
 API_KEY = os.getenv("CONTROL_TOWER_API_KEY", "demo-control-tower-key")
 HEADERS = {"x-api-key": API_KEY}
+RENEWAL_REVIEW_ENDPOINT_TEMPLATE = "/customers/{customer_id_or_name}/renewal-review"
+RENEWAL_REVIEW_ARTIFACT_DIRECTORY = "data/renewal_reviews"
 
 
 def api(method: str, path: str, payload: dict[str, Any] | None = None) -> Any:
@@ -329,6 +331,7 @@ with tabs[9]:
 
 with tabs[10]:
     health = api("GET", "/customers/health")
+    renewal = api("GET", "/customers/renewal-risk")
     customers = health["customers"]
     if customers:
         c1, c2, c3, c4 = st.columns(4)
@@ -338,6 +341,30 @@ with tabs[10]:
         c4.metric("High SLA risks", sum(item["high_sla_risk_count"] for item in customers))
 
         st.dataframe(customers, use_container_width=True, hide_index=True)
+        st.subheader("Renewal Risk")
+        renewal_summary = renewal["summary"]
+        r1, r2, r3, r4 = st.columns(4)
+        r1.metric("Renewal accounts", renewal_summary["account_count"])
+        r2.metric("Critical or high", renewal_summary["critical_or_high_count"])
+        r3.metric("ARR at risk", f"${renewal_summary['arr_at_risk_usd']:,.0f}")
+        r4.metric("SLA drag", f"{renewal_summary.get('total_sla_drag_minutes', 0)} min")
+        st.dataframe(
+            [
+                {
+                    "account": item["account"],
+                    "risk": item["renewal_risk_level"],
+                    "score": item["renewal_risk_score"],
+                    "arr_at_risk": item["arr_at_risk_usd"],
+                    "window_days": item["renewal_window_days"],
+                    "sentiment": item["support_sentiment"]["label"],
+                    "sla_drag": item["sla_drag"]["total_minutes"],
+                    "recommended_action": item["recommended_action"],
+                }
+                for item in renewal["accounts"]
+            ],
+            use_container_width=True,
+            hide_index=True,
+        )
         selected = st.selectbox(
             "Account",
             [f"{item['account']} | {item['health_score']} | {item['risk_level']}" for item in customers],
@@ -364,6 +391,24 @@ with tabs[10]:
             st.markdown(brief["markdown"])
             with st.expander("Account Brief JSON"):
                 st.json(brief["brief"])
+        if st.button("Export Renewal Review"):
+            review = api("POST", f"/customers/{account['customer_id']}/renewal-review")
+            st.session_state["renewal_review"] = review
+            st.success(f"Renewal review exported: {review['markdown_path']}")
+        review = st.session_state.get("renewal_review")
+        if review:
+            st.caption(f"Renewal Markdown: {review['markdown_path']}")
+            st.caption(f"Renewal JSON: {review['json_path']}")
+            st.download_button(
+                "Download Renewal Review",
+                data=review["markdown"],
+                file_name=f"{review['customer_id']}-renewal.md",
+                mime="text/markdown",
+            )
+            with st.expander("Renewal Review Markdown", expanded=True):
+                st.markdown(review["markdown"])
+            with st.expander("Renewal Review JSON"):
+                st.json(review["review"])
     else:
         st.info("No customer health rows yet.")
 

@@ -1,0 +1,102 @@
+[
+  {
+    "customer": "Northstar Health",
+    "renewal_window_days": 42,
+    "executive_sponsor": "VP Clinical Operations",
+    "commercial_owner": "enterprise-csm",
+    "success_plan_status": "blocked",
+    "product_adoption_score": 68,
+    "csm_confidence": 48,
+    "baseline_support_sentiment": "negative",
+    "open_sla_drag_minutes": 85,
+    "renewal_blockers": [
+      {
+        "blocker": "SSO reliability concern is tied to renewal sponsor confidence.",
+        "severity": "critical",
+        "owner": "support-incident-lead",
+        "recommended_clearance": "Publish RCA-backed mitigation plan and executive update cadence."
+      },
+      {
+        "blocker": "Security review needs current SAML incident evidence before legal approval.",
+        "severity": "high",
+        "owner": "solutions-engineering",
+        "recommended_clearance": "Attach incident brief, trace evidence, and remediation checklist to the security review."
+      }
+    ]
+  },
+  {
+    "customer": "Atlas Logistics",
+    "renewal_window_days": 77,
+    "executive_sponsor": "Director of Platform Operations",
+    "commercial_owner": "enterprise-csm",
+    "success_plan_status": "stalled",
+    "product_adoption_score": 74,
+    "csm_confidence": 62,
+    "baseline_support_sentiment": "watch",
+    "open_sla_drag_minutes": 45,
+    "renewal_blockers": [
+      {
+        "blocker": "Webhook reliability remains an open procurement objection.",
+        "severity": "high",
+        "owner": "engineering-manager",
+        "recommended_clearance": "Confirm regression owner, fix ETA, and customer-facing workaround."
+      }
+    ]
+  },
+  {
+    "customer": "BrightWorks Studio",
+    "renewal_window_days": 145,
+    "executive_sponsor": "Head of Studio Operations",
+    "commercial_owner": "growth-csm",
+    "success_plan_status": "on_track",
+    "product_adoption_score": 81,
+    "csm_confidence": 79,
+    "baseline_support_sentiment": "neutral",
+    "open_sla_drag_minutes": 10,
+    "renewal_blockers": []
+  },
+  {
+    "customer": "Cobalt Retail",
+    "renewal_window_days": 96,
+    "executive_sponsor": "VP Digital Commerce",
+    "commercial_owner": "enterprise-csm",
+    "success_plan_status": "needs_review",
+    "product_adoption_score": 71,
+    "csm_confidence": 66,
+    "baseline_support_sentiment": "watch",
+    "open_sla_drag_minutes": 25,
+    "renewal_blockers": [
+      {
+        "blocker": "Escalation cadence needs named owner before QBR.",
+        "severity": "medium",
+        "owner": "support-lead",
+        "recommended_clearance": "Add named support owner and weekly risk review notes."
+      }
+    ]
+  },
+  {
+    "customer": "Evergreen Bank",
+    "renewal_window_days": 58,
+    "executive_sponsor": "Chief Risk Officer",
+    "commercial_owner": "strategic-csm",
+    "success_plan_status": "blocked",
+    "product_adoption_score": 59,
+    "csm_confidence": 55,
+    "baseline_support_sentiment": "watch",
+    "open_sla_drag_minutes": 70,
+    "renewal_blockers": [
+      {
+        "blocker": "Compliance export reliability must be closed before renewal approval.",
+        "severity": "critical",
+        "owner": "security-engineering",
+        "recommended_clearance": "Provide compliance-ready export validation notes and trace-backed incident summary."
+      },
+      {
+        "blocker": "Executive sponsor asked for incident prevention plan.",
+        "severity": "high",
+        "owner": "customer-success",
+        "recommended_clearance": "Deliver prevention plan with support SLOs and customer communication commitments."
+      }
+    ]
+  }
+]

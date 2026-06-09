@@ -255,6 +255,8 @@ Important variables:
 - `POST /analytics/weekly-review`: writes Markdown and JSON under the local ignored reports directory, normally `data/reports/`.
 - `GET /customers/health`: groups local tickets into account health summaries with deterministic 0-100 scores and recommended actions.
 - `POST /customers/{customer_id_or_name}/account-brief`: writes Markdown and JSON under `data/account_briefs/` with health, active tickets, recent runs, playbooks, approvals, outbox summary, and next actions.
+- `GET /customers/renewal-risk`: combines local account health, fake renewal inputs, support sentiment, SLA drag, blockers, and ARR metadata into a renewal-risk queue.
+- `POST /customers/{customer_id_or_name}/renewal-review`: writes Markdown and JSON under `data/renewal_reviews/` with renewal risk, support evidence, blocker register, owner actions, and limitations.
 - `GET /ops/slo-budget`: returns deterministic SLO status for workflow latency, token usage, cost, failures, pending approvals, and outbox dispatch delay.
 - `POST /ops/optimization-report`: writes Markdown and JSON under `data/optimization_reports/` with SLO statuses, top slow nodes, high-token nodes, failure hotspots, approval bottlenecks, and recommended fixes.
 - `GET /ops/ci-doctor`: returns the Local CI Doctor with structured checks for pytest, ruff, eval, demo, GitHub Actions, Docker Compose, `.env.example`, README sections, docs, ignored generated artifacts, dependency files, local/mock provider notes, and a redacted secret scan summary.

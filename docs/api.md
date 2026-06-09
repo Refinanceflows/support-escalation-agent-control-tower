@@ -225,6 +225,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /customers/{customer_id_or_name}/account-brief`
   Writes Markdown and JSON under the ignored local account brief folder, normally `data/account_briefs/`. The brief includes customer health, active tickets, recent runs, recommended playbooks, pending approvals, outbox summary, and next actions. The path parameter can be the returned `customer_id` slug or the account/customer name.
 
+- `GET /customers/renewal-risk`
+  Returns a local deterministic renewal-risk queue. It joins customer health, `sample_data/account_health_inputs.json`, `sample_data/customers.json` ARR metadata, ticket sentiment, workflow SLA state, approval state, and fake blocker inputs. Each account includes renewal window, support sentiment, SLA drag, blocker register, owner actions, ARR at risk, and recommended action.
+
+- `POST /customers/{customer_id_or_name}/renewal-review`
+  Writes Markdown and JSON under the ignored local renewal review folder, normally `data/renewal_reviews/`. The review includes executive summary, renewal risk, support evidence, pending approvals, outbox summary, blocker register, customer-success review, assumptions, and limitations. The path parameter can be the returned `customer_id` slug or the account/customer name.
+
 - `GET /audit/events`
   Returns audit events.
 

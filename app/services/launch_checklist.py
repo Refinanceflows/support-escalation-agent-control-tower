@@ -159,6 +159,12 @@ EXPECTED_ARTIFACTS = [
         "formats": ["markdown", "json"],
     },
     {
+        "name": "Renewal Risk Review",
+        "directory": "data/renewal_reviews",
+        "producer": "POST /customers/{customer_id_or_name}/renewal-review",
+        "formats": ["markdown", "json"],
+    },
+    {
         "name": "Optimization report",
         "directory": "data/optimization_reports",
         "producer": "POST /ops/optimization-report",

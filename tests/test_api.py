@@ -1150,6 +1150,90 @@ def test_account_brief_export_writes_markdown_and_json(client):
     assert Path(exported["json_path"]).exists()
 
 
+def test_customer_renewal_risk_and_review_export(client):
+    token = client.post("/auth/demo-token").json()["token"]
+    headers = {"X-API-Key": token}
+    ticket = client.post(
+        "/tickets/ingest",
+        headers=headers,
+        json={
+            "subject": "Northstar SSO reliability concern before renewal",
+            "body": (
+                "The executive sponsor says renewal confidence is blocked because SAML SSO "
+                "had another production outage and legal needs incident evidence."
+            ),
+            "customer": "Northstar Health",
+            "customer_email": "ops@northstar.example",
+            "priority": "urgent",
+            "customer_tier": "enterprise",
+            "tags": ["auth", "sso", "outage", "renewal"],
+        },
+    ).json()
+    run = client.post(f"/tickets/{ticket['ticket_id']}/analyze", headers=headers).json()
+
+    response = client.get("/customers/renewal-risk", headers=headers)
+    assert response.status_code == 200, response.text
+    renewal = response.json()
+    northstar = next(
+        item for item in renewal["accounts"] if item["customer_id"] == "northstar-health"
+    )
+
+    assert renewal["mode"] == "local-deterministic-renewal-risk"
+    assert renewal["local_mock_only"] is True
+    assert renewal["summary"]["account_count"] >= 1
+    assert renewal["summary"]["arr_at_risk_usd"] > 0
+    assert northstar["renewal_risk_level"] in {"high", "critical"}
+    assert northstar["renewal_risk_score"] >= 60
+    assert northstar["support_sentiment"]["label"] == "negative"
+    assert northstar["sla_drag"]["total_minutes"] >= 85
+    assert northstar["arr_usd"] == 420000
+    assert northstar["arr_at_risk_usd"] > 0
+    assert northstar["renewal_blockers"]
+    assert northstar["owner_actions"]
+    assert run["status"] == "awaiting_approval"
+
+    export_response = client.post("/customers/northstar-health/renewal-review", headers=headers)
+    assert export_response.status_code == 200, export_response.text
+    exported = export_response.json()
+    review = exported["review"]
+    markdown = exported["markdown"]
+
+    assert exported["customer_id"] == "northstar-health"
+    assert "renewal_reviews" in exported["markdown_path"]
+    assert review["account"]["customer_id"] == "northstar-health"
+    assert any(
+        item["ticket_id"] == ticket["ticket_id"]
+        for item in review["support_evidence"]["active_tickets"]
+    )
+    assert any(item["run_id"] == run["run_id"] for item in review["support_evidence"]["recent_runs"])
+    assert review["support_evidence"]["pending_approvals"]
+    assert review["blocker_register"]
+    assert review["customer_success_review"]["csm_confidence"] == 48
+    assert "# Renewal Risk Review: Northstar Health" in markdown
+    assert "## SLA Drag" in markdown
+    assert "## Renewal Blockers" in markdown
+    assert Path(exported["markdown_path"]).exists()
+    assert Path(exported["json_path"]).exists()
+
+
+def test_renewal_review_is_listed_in_artifact_inventory(client):
+    token = client.post("/auth/demo-token").json()["token"]
+    headers = {"X-API-Key": token}
+    client.post("/customers/northstar-health/renewal-review", headers=headers)
+
+    response = client.get("/artifacts/inventory", headers=headers)
+    assert response.status_code == 200, response.text
+    inventory = response.json()
+
+    row = next(
+        item for item in inventory["artifacts"] if item["directory"] == "data/renewal_reviews"
+    )
+    assert row["producer"] == "POST /customers/{customer_id_or_name}/renewal-review"
+    assert row["file_count"] >= 2
+    assert "Renewal" in row["name"]
+    assert "ARR exposure" in row["reviewer_purpose"]
+
+
 def test_replay_lab_detects_changed_decisions(client):
     token = client.post("/auth/demo-token").json()["token"]
     headers = {"X-API-Key": token}

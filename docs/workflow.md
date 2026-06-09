@@ -249,6 +249,10 @@ The health score is deterministic and local. It starts at 100 and subtracts weig
 
 `POST /customers/{customer_id_or_name}/account-brief` writes Markdown and JSON under `data/account_briefs/`. The brief packages the account health row with active tickets, recent runs, recommended playbooks, pending approvals, outbox summary, and next actions. It reuses the same local state as tickets, approvals, outbox, playbooks, and runs, so no CRM or external support tool is required.
 
+`GET /customers/renewal-risk` layers a local renewal-risk model on top of account health. It combines fake renewal inputs from `sample_data/account_health_inputs.json`, local ticket and workflow sentiment, SLA drag from approvals/failures/escalations, blocker severity, ARR metadata from `sample_data/customers.json`, and owner actions. The output is deterministic and mock-only.
+
+`POST /customers/{customer_id_or_name}/renewal-review` writes Markdown and JSON under `data/renewal_reviews/`. The review packages executive summary, support evidence, renewal blockers, SLA drag components, customer-success review fields, owner actions, assumptions, and limitations for an account renewal meeting without calling CRM, billing, Zendesk, Jira, Slack, Azure, OpenAI, or external services.
+
 ## Routing
 
 High-SLA-risk tickets draft an engineering escalation. Low-confidence or risky actions also require approval. Because all outbound customer and engineering actions require approval, the approval gate is universal by design.

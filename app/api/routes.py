@@ -519,6 +519,19 @@ async def account_brief(customer_id_or_name: str, request: Request):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found") from None
 
 
+@router.get("/customers/renewal-risk", dependencies=[Depends(require_api_key)])
+async def customer_renewal_risk(request: Request):
+    return await get_container(request).customers.renewal_risk()
+
+
+@router.post("/customers/{customer_id_or_name}/renewal-review", dependencies=[Depends(require_api_key)])
+async def customer_renewal_review(customer_id_or_name: str, request: Request):
+    try:
+        return await get_container(request).customers.export_renewal_review(customer_id_or_name)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found") from None
+
+
 @router.get("/audit/events", dependencies=[Depends(require_api_key)])
 async def audit_events(request: Request):
     return await get_container(request).audit.list_events()
