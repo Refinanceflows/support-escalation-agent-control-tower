@@ -71,6 +71,7 @@ tabs = st.tabs(
         "Finance Impact",
         "Runbook Coverage",
         "Evidence Retention",
+        "Capacity Planning",
     ]
 )
 
@@ -2309,3 +2310,68 @@ with tabs[38]:
         st.markdown(pack["markdown"])
         with st.expander("Evidence Retention JSON"):
             st.json(pack["pack"])
+
+with tabs[39]:
+    left, right = st.columns(2)
+    if left.button("Refresh Capacity Forecast", type="primary", use_container_width=True):
+        st.session_state["capacity_forecast"] = api("GET", "/capacity/forecast")
+    if right.button("Export Staffing Plan", use_container_width=True):
+        plan = api("POST", "/capacity/staffing-plan")
+        st.session_state["capacity_plan"] = plan
+        st.session_state["capacity_forecast"] = {
+            "capacity_score": plan["capacity_score"],
+            "readiness_status": plan["readiness_status"],
+            "demand_summary": plan["plan"]["demand_summary"],
+            "queue_forecast": plan["plan"]["queue_forecast"],
+            "staffing_gaps": plan["plan"]["staffing_gaps"],
+            "owner_assignments": plan["plan"]["owner_assignments"],
+            "endpoint_list": plan["plan"]["endpoint_list"],
+        }
+        st.success(f"Capacity Staffing Plan exported: {plan['markdown_path']}")
+
+    forecast = st.session_state.get("capacity_forecast") or api("GET", "/capacity/forecast")
+    st.session_state["capacity_forecast"] = forecast
+    summary = forecast["demand_summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Capacity score", forecast["capacity_score"])
+    c2.metric("Status", forecast["readiness_status"])
+    c3.metric("Projected tickets", summary["projected_weekly_tickets"])
+    c4.metric("Gap queues", summary["capacity_gap_queue_count"])
+
+    c5, c6, c7, c8 = st.columns(4)
+    c5.metric("Effort hours", summary["projected_effort_hours"])
+    c6.metric("Required FTE", summary["required_fte"])
+    c7.metric("Available FTE", summary["available_fte"])
+    c8.metric("Gap FTE", summary["capacity_gap_fte"])
+
+    st.subheader("Queue Forecast")
+    st.dataframe(forecast["queue_forecast"], use_container_width=True, hide_index=True)
+
+    st.subheader("Staffing Gaps")
+    st.dataframe(forecast["staffing_gaps"], use_container_width=True, hide_index=True)
+
+    st.subheader("Owner Assignments")
+    st.dataframe(forecast["owner_assignments"], use_container_width=True, hide_index=True)
+
+    st.subheader("Endpoint Coverage")
+    st.dataframe(
+        [{"endpoint": endpoint} for endpoint in forecast["endpoint_list"]],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    plan = st.session_state.get("capacity_plan")
+    if plan:
+        st.caption(f"Markdown: {plan['markdown_path']}")
+        st.caption(f"JSON: {plan['json_path']}")
+        st.download_button(
+            "Download Capacity Staffing Plan",
+            data=plan["markdown"],
+            file_name=f"{plan['plan_id']}.md",
+            mime="text/markdown",
+        )
+        st.subheader("Staffing Actions")
+        st.dataframe(plan["plan"]["staffing_actions"], use_container_width=True, hide_index=True)
+        st.markdown(plan["markdown"])
+        with st.expander("Capacity Staffing Plan JSON"):
+            st.json(plan["plan"])

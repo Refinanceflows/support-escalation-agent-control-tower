@@ -41,6 +41,7 @@ The included pytest suite covers the core behavior expected of the control tower
 - Runtime Demo readiness endpoint, source-only `scripts/runtime_check.py`, dashboard tab wiring, and Runtime Demo Server Pack export under `data/runtime_packs/`
 - Scenario Dataset catalog coverage and Eval Coverage Pack export under `data/scenario_packs/`
 - Evidence Retention audit for trace, approval, outbox, audit-event, artifact, SHA-256 hash coverage, dashboard wiring, demo output, and pack export under `data/evidence_packs/`
+- Capacity Planning queue load, required/available FTE, staffing gaps, dashboard wiring, demo/eval output, and Staffing Plan export under `data/capacity_plans/`
 - Dashboard Smoke source wiring for Streamlit views, endpoint references, generated artifact tabs, and UI Verification Pack export under `data/ui_verification/`
 - metrics aggregation
 - auth behavior
@@ -415,6 +416,36 @@ Required local Runtime Demo verification command set:
 .\.venv\Scripts\python.exe scripts\demo_run.py
 rg "runtime/demo-readiness|runtime/demo-pack|Runtime Demo|runtime_packs|runtime_check|start_demo" app dashboard docs README.md tests scripts
 Get-ChildItem -Recurse -File data\runtime_packs -ErrorAction SilentlyContinue | Select-Object FullName,Length,LastWriteTime
+```
+
+## Capacity Planning Eval
+
+Inspect the local support load forecast and export the staffing plan:
+
+```bash
+curl http://localhost:8000/capacity/forecast \
+  -H "x-api-key: demo-control-tower-key"
+
+curl -X POST http://localhost:8000/capacity/staffing-plan \
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected evidence:
+
+- `GET /capacity/forecast` returns queue-level load, projected effort, required FTE, available FTE, capacity gaps, owners, endpoint evidence, commands, and local/mock limitations
+- `POST /capacity/staffing-plan` writes Markdown and JSON files under `data/capacity_plans/`
+- `scripts/capacity_plan.py` prints capacity score, projected load, gap queues, and generated artifact paths
+- `scripts/demo_run.py` prints Capacity Forecast status and Capacity Staffing Plan Markdown/JSON paths
+- `app.evals.run_eval` includes capacity forecast score, staffing gap count, and Capacity Staffing Plan path
+
+Required local Capacity Planning verification command set:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\capacity_plan.py
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m app.evals.run_eval
+.\.venv\Scripts\python.exe scripts\dashboard_smoke.py
+rg "capacity/forecast|capacity/staffing-plan|Capacity Planning|capacity_plans" app dashboard docs README.md tests scripts
 ```
 
 ## Final Handoff and README Consistency Eval

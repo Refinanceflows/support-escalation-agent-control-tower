@@ -55,6 +55,8 @@ async def run_eval() -> None:
     scenario_summary = scenario_pack["eval_summary"]
     runbook_audit = await container.runbook_coverage.coverage_audit()
     runbook_gap_pack = await container.runbook_coverage.export_gap_pack()
+    capacity_forecast = await container.capacity_planning.forecast()
+    capacity_plan = await container.capacity_planning.export_staffing_plan()
     passed = (
         correct_classification == total
         and correct_routing == total
@@ -62,6 +64,8 @@ async def run_eval() -> None:
         and scenario_summary["status"] == "pass"
         and runbook_audit["coverage_score"] >= 50
         and runbook_audit["runbook_gaps"]
+        and capacity_forecast["demand_summary"]["ticket_count"] >= total
+        and capacity_forecast["queue_forecast"]
     )
 
     print(f"Number of eval tickets: {total}")
@@ -87,6 +91,9 @@ async def run_eval() -> None:
     print(f"Runbook Coverage score: {runbook_audit['coverage_score']}")
     print(f"Runbook Coverage gaps: {len(runbook_audit['runbook_gaps'])}")
     print(f"Runbook Gap Pack: {runbook_gap_pack['markdown_path']}")
+    print(f"Capacity Forecast score: {capacity_forecast['capacity_score']}")
+    print(f"Capacity Forecast gaps: {len(capacity_forecast['staffing_gaps'])}")
+    print(f"Capacity Staffing Plan: {capacity_plan['markdown_path']}")
     print(f"Pass/fail summary: {'PASS' if passed else 'FAIL'}")
     if not passed:
         raise SystemExit(1)

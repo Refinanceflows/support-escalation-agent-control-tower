@@ -335,6 +335,20 @@ def run_with_http_server() -> dict | None:
         )
         evidence_pack_response.raise_for_status()
         result["evidence_retention_pack"] = evidence_pack_response.json()
+        capacity_forecast_response = requests.get(
+            f"{BASE}/capacity/forecast",
+            headers=headers,
+            timeout=60,
+        )
+        capacity_forecast_response.raise_for_status()
+        result["capacity_forecast"] = capacity_forecast_response.json()
+        capacity_plan_response = requests.post(
+            f"{BASE}/capacity/staffing-plan",
+            headers=headers,
+            timeout=60,
+        )
+        capacity_plan_response.raise_for_status()
+        result["capacity_plan"] = capacity_plan_response.json()
         result["mode"] = "http"
         return result
     except Exception:
@@ -515,6 +529,12 @@ def run_in_process() -> dict:
         evidence_pack_response = client.post("/evidence/retention-pack", headers={"x-api-key": token})
         evidence_pack_response.raise_for_status()
         result["evidence_retention_pack"] = evidence_pack_response.json()
+        capacity_forecast_response = client.get("/capacity/forecast", headers={"x-api-key": token})
+        capacity_forecast_response.raise_for_status()
+        result["capacity_forecast"] = capacity_forecast_response.json()
+        capacity_plan_response = client.post("/capacity/staffing-plan", headers={"x-api-key": token})
+        capacity_plan_response.raise_for_status()
+        result["capacity_plan"] = capacity_plan_response.json()
         result["mode"] = "in-process"
         return result
 
@@ -565,6 +585,8 @@ def main():
     finance_pack = result["finance_impact_pack"]
     evidence_audit = result["evidence_retention_audit"]
     evidence_pack = result["evidence_retention_pack"]
+    capacity_forecast = result["capacity_forecast"]
+    capacity_plan = result["capacity_plan"]
     policy_simulation = policy["pack"]["primary_simulation"]
     policy_change = policy_change_pack["pack"]["simulation"]
 
@@ -726,6 +748,14 @@ def main():
     )
     print("Evidence Retention Pack:", evidence_pack["markdown_path"])
     print("Evidence Retention JSON:", evidence_pack["json_path"])
+    print(
+        "Capacity forecast:",
+        capacity_forecast["readiness_status"],
+        f"score={capacity_forecast['capacity_score']}",
+        f"gap_queues={capacity_forecast['demand_summary']['capacity_gap_queue_count']}",
+    )
+    print("Capacity Staffing Plan:", capacity_plan["markdown_path"])
+    print("Capacity Staffing JSON:", capacity_plan["json_path"])
     print("Incident impact status:", metrics["incident_impact_status"])
     print("Incident narrative:", metrics["incident_narrative_path"])
     print("Finance impact artifact:", metrics["finance_impact_path"])

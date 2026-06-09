@@ -101,6 +101,7 @@ REVIEWER_PURPOSES = {
     "data/finance_impact_packs": EXTRA_ARTIFACTS[3]["reviewer_purpose"],
     "data/runbook_gap_packs": EXTRA_ARTIFACTS[4]["reviewer_purpose"],
     "data/evidence_packs": EXTRA_ARTIFACTS[5]["reviewer_purpose"],
+    "data/capacity_plans": "Support capacity forecast proof with queue load, staffing gaps, owners, and local remediation actions.",
 }
 
 

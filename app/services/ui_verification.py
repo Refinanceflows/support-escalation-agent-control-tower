@@ -56,6 +56,7 @@ EXPECTED_VIEWS = [
     "Finance Impact",
     "Runbook Coverage",
     "Evidence Retention",
+    "Capacity Planning",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -299,6 +300,18 @@ EXPECTED_ENDPOINTS = [
         "dashboard_reference_required": True,
         "route_required": True,
     },
+    {
+        "endpoint": "GET /capacity/forecast",
+        "purpose": "Support load and staffing capacity forecast.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /capacity/staffing-plan",
+        "purpose": "Support Capacity Forecast and Staffing Plan export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
 ]
 
 GENERATED_ARTIFACT_TABS = [
@@ -431,6 +444,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Evidence Retention",
         "producer_endpoint": "POST /evidence/retention-pack",
         "artifact_directory": "data/evidence_packs",
+    },
+    {
+        "tab_label": "Capacity Planning",
+        "producer_endpoint": "POST /capacity/staffing-plan",
+        "artifact_directory": "data/capacity_plans",
     },
 ]
 
@@ -743,6 +761,11 @@ class UIVerificationService:
                 "view": "Evidence Retention",
                 "placeholder": "screenshots/evidence-retention-custody-manifest.png",
                 "what_to_capture": "Evidence score, run completeness, artifact custody, hash manifest, and generated pack paths.",
+            },
+            {
+                "view": "Capacity Planning",
+                "placeholder": "screenshots/capacity-planning-staffing-plan.png",
+                "what_to_capture": "Capacity score, staffing gaps, queue forecast, owner actions, and generated pack paths.",
             },
         ]
 

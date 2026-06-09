@@ -27,6 +27,7 @@ The control tower is organized as an async FastAPI application with explicit ser
 - **RuntimeDemoService** returns fresh-clone runtime readiness for FastAPI and Streamlit, including source checks, dependency checks, safe read-only port/process checks, commands, health URLs, and Runtime Demo Server Pack exports.
 - **ScenarioCatalogService** reads the enterprise fake scenario dataset, exposes expected outcome coverage, runs deterministic checks, and writes Scenario Dataset Eval Coverage Pack artifacts.
 - **EvidenceRetentionService** audits local escalation evidence completeness and writes Evidence Retention and Chain-of-Custody Pack artifacts with SHA-256 hashes.
+- **CapacityPlanningService** forecasts local support queue load from tickets, scenarios, and run history, then writes owner-ready Capacity Staffing Plan artifacts.
 - **OpsService CI Doctor** inspects local repo files for CI commands, docs, Docker, env examples, dependency manifests, ignored generated artifacts, local/mock provider notes, and redacted secret scan findings, then writes Dependency/Secrets Audit Pack artifacts.
 - **ReplayLabService** performs deterministic counterfactual replay over stored run state for Change Risk / Escalation Replay scenarios and exports Markdown/JSON reports.
 - **PolicyGuardrailService** evaluates approval policy rules over run context, Replay Lab findings, requested automation actions, customer tier, adapter health, confidence, SLA pressure, and KB grounding, then exports policy packs.
@@ -65,6 +66,7 @@ The default persistence layer is a local SQLite database configured by `CONTROL_
 - Runtime Demo Server Pack artifacts under ignored `data/runtime_packs/`
 - Scenario Dataset Eval Coverage Pack artifacts under ignored `data/scenario_packs/`
 - Evidence Retention and Chain-of-Custody Pack artifacts under ignored `data/evidence_packs/`
+- Capacity Forecast and Staffing Plan artifacts under ignored `data/capacity_plans/`
 - Postmortem RCA + Corrective Action Tracking Pack artifacts under ignored `data/rca_packs/`
 
 This keeps local setup dependency-free while still using a real durable database that persists state across process restarts.
@@ -122,5 +124,7 @@ The Runtime Demo service is the fresh-clone local server handoff. `GET /runtime/
 The Scenario Dataset service makes eval coverage less dependent on one golden path. `GET /scenarios/catalog` reads `sample_data/scenarios.json` and returns scenario coverage, expected classification/SLA/approval/escalation outcomes, low-confidence review expectations, and failure/tool-retry expectations. `POST /scenarios/eval-pack` runs those fixtures through the local workflow and writes Markdown/JSON under ignored `data/scenario_packs/` with accuracy, coverage, gaps, warnings, and artifact paths.
 
 The Evidence Retention service is the local custody layer over state and generated proof. `GET /evidence/retention-audit` checks recent runs for ticket, trace, classification, SLA, QA, approval, outbox, and audit evidence, summarizes generated artifact coverage, and computes SHA-256 hashes for latest Markdown/JSON files. `POST /evidence/retention-pack` writes Markdown/JSON under ignored `data/evidence_packs/` with custody review tables, findings, owner actions, verification commands, and limitations. It remains local/mock only and does not call external archive, CRM, billing, GitHub, Azure, OpenAI, Zendesk, Jira, Slack, or SaaS systems.
+
+The Capacity Planning service translates local demand into a staffing view. `GET /capacity/forecast` combines active tickets, scenario fixtures, and run history into queue load, effort hours, required FTE, available FTE, capacity gaps, owners, endpoint evidence, and commands. `POST /capacity/staffing-plan` writes Markdown/JSON under ignored `data/capacity_plans/` with staffing actions and acceptance criteria. It remains local/mock only and does not call workforce management, HR, BI, CRM, Zendesk, Jira, Slack, Azure, OpenAI, or external systems.
 
 The CI Doctor extends that maintainability surface with a narrower dependency/secrets audit. `GET /ops/ci-doctor` reads only local files and returns structured checks for pytest, ruff, eval, demo, GitHub Actions, Docker Compose, `.env.example`, README sections, docs presence, generated artifact ignores, dependency files, local/mock provider notes, and a suspicious secret-pattern scan summary. The secret scan redacts matched values and skips generated folders such as `data/`, `.git/`, and `.venv/`. `POST /ops/audit-pack` writes the Markdown/JSON Audit Pack under ignored `data/audit_packs/`. It does not call GitHub, PyPI, external vulnerability databases, or secret-scanning services.

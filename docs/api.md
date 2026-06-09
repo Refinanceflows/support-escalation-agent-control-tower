@@ -213,6 +213,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /evidence/retention-pack`
   Writes Markdown and JSON under the ignored evidence pack folder, normally `data/evidence_packs/`. The pack includes custody review table, owner actions, findings, local verification commands, artifact hash sample, and local-only chain-of-custody limitations.
 
+- `GET /capacity/forecast`
+  Returns a local deterministic support capacity forecast across active tickets, scenario fixtures, and run history. The response includes queue-level ticket load, projected effort hours, required FTE, available FTE, capacity gaps, owner assignments, endpoint evidence, local commands, and limitations.
+
+- `POST /capacity/staffing-plan`
+  Writes Markdown and JSON under the ignored capacity planning folder, normally `data/capacity_plans/`. The plan includes demand summary, queue forecast, staffing gaps, owner assignments, remediation actions, acceptance criteria, local verification commands, JD skills, interviewer talking points, artifact paths, and local/mock limitations.
+
 - `POST /ops/runbook-qa`
   Evaluates operator handoff completeness for a supplied `run_id`, the latest local run, or a deterministic sample fallback when no run exists. The response includes score, pass/fail status, missing sections, warnings, linked artifact paths, and recommended fixes for ticket summary, classification, SLA risk, customer impact, KB context, drafts, approval state, trace ID, outbox, failure drill, remediation owners, SLO budget, optimization recommendations, and customer/account health.
 

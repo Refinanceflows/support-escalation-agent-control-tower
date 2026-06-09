@@ -218,6 +218,12 @@ EXPECTED_ARTIFACTS = [
         "producer": "POST /scenarios/eval-pack",
         "formats": ["markdown", "json"],
     },
+    {
+        "name": "Support Capacity Forecast and Staffing Plan",
+        "directory": "data/capacity_plans",
+        "producer": "POST /capacity/staffing-plan",
+        "formats": ["markdown", "json"],
+    },
 ]
 
 
@@ -329,6 +335,8 @@ class LaunchChecklistService:
             self._row("POST", "/scenarios/eval-pack", True, "Writes the Scenario Dataset Eval Coverage Pack.", True, "data/scenario_packs"),
             self._row("GET", "/evidence/retention-audit", True, "Returns evidence retention and custody readiness.", False),
             self._row("POST", "/evidence/retention-pack", True, "Writes the Evidence Retention and Chain-of-Custody Pack.", True, "data/evidence_packs"),
+            self._row("GET", "/capacity/forecast", True, "Returns local support load and staffing capacity forecast.", False),
+            self._row("POST", "/capacity/staffing-plan", True, "Writes the Capacity Forecast and Staffing Plan.", True, "data/capacity_plans"),
             self._row("POST", "/tickets/ingest-samples", True, "Loads sample tickets for manual demos.", False),
             self._row("GET", "/tickets", True, "Confirms authenticated ticket listing works.", False),
             self._row("POST", "/demo/evidence-pack", True, "Runs the complete demo and writes evidence.", True, "data/demo_packs plus linked artifacts"),

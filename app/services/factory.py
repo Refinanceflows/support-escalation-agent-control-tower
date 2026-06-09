@@ -9,6 +9,7 @@ from app.services.api_contract import ApiContractService
 from app.services.artifacts import ArtifactInventoryService
 from app.services.audit import AuditService
 from app.services.briefs import IncidentBriefService
+from app.services.capacity_planning import CapacityPlanningService
 from app.services.customers import CustomerHealthService
 from app.services.demo import DemoService
 from app.services.drills import DrillService
@@ -285,4 +286,11 @@ class ServiceContainer:
             self.store,
             self.audit,
             settings.state_file.parent / "evidence_packs",
+        )
+        self.capacity_planning = CapacityPlanningService(
+            self.store,
+            self.tickets,
+            self.audit,
+            Path("sample_data/scenarios.json"),
+            settings.state_file.parent / "capacity_plans",
         )

@@ -169,6 +169,12 @@ The endpoint accepts an optional `run_id`. Without one, it uses the latest local
 
 `POST /evidence/retention-pack` writes Markdown and JSON under `data/evidence_packs/`. The pack includes a custody review table, recent run evidence map, artifact custody summary, hash manifest sample, findings, owner actions, local verification commands, and explicit local-only limitations. It does not call external archive, CRM, billing, GitHub, Azure, OpenAI, Zendesk, Jira, Slack, or SaaS systems.
 
+## Capacity Planning
+
+`GET /capacity/forecast` maps local active tickets, scenario fixtures, and run history into support queue load, projected effort hours, required FTE, available FTE, staffing gaps, owner assignments, endpoint evidence, local commands, and limitations. It keeps workforce planning deterministic and local/mock while showing how an AI support control tower would reason about safe operating capacity.
+
+`POST /capacity/staffing-plan` writes Markdown and JSON under `data/capacity_plans/`. The plan includes the demand summary, queue forecast, staffing gaps, owner assignments, remediation actions, acceptance criteria, local verification commands, JD skills, and interviewer talking points. It does not call workforce management, HR, BI, CRM, Zendesk, Jira, Slack, Azure, OpenAI, or external services.
+
 ## Git Readiness and Branch Hygiene
 
 `GET /git/readiness` is the local GitHub Push Readiness gate. It uses only read-only git inspection to report repo detection, current branch, tracked/untracked/modified/ignored summary, generated artifact directories that should stay ignored, source/doc/test/dashboard files changed, suspicious large/generated files, GitHub Actions workflow presence, README final handoff mention, `.env.example`, dirty-worktree guidance, and recommended commit groups.

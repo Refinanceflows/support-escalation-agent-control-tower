@@ -388,6 +388,16 @@ async def evidence_retention_pack(request: Request):
     return await get_container(request).evidence_retention.export_retention_pack()
 
 
+@router.get("/capacity/forecast", dependencies=[Depends(require_api_key)])
+async def capacity_forecast(request: Request):
+    return await get_container(request).capacity_planning.forecast()
+
+
+@router.post("/capacity/staffing-plan", dependencies=[Depends(require_api_key)])
+async def capacity_staffing_plan(request: Request):
+    return await get_container(request).capacity_planning.export_staffing_plan()
+
+
 @router.get("/ui/dashboard-smoke", dependencies=[Depends(require_api_key)])
 async def ui_dashboard_smoke(request: Request):
     return await get_container(request).ui_verification.dashboard_smoke()
