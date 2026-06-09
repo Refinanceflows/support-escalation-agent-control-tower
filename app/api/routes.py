@@ -8,6 +8,7 @@ from app.core.security import require_api_key
 from app.models import (
     ApprovalDecision,
     AuditEvent,
+    FinanceImpactRequest,
     IncidentNarrativeRequest,
     PolicyChangePackRequest,
     PolicyChangeSimulationRequest,
@@ -204,6 +205,22 @@ async def postmortem_summary(request: Request):
 async def rca_pack(request: Request, payload: IncidentNarrativeRequest | None = None):
     try:
         return await get_container(request).postmortem_rca.export_rca_pack(payload.run_id if payload else None)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
+@router.post("/finance/impact-summary", dependencies=[Depends(require_api_key)])
+async def finance_impact_summary(request: Request, payload: FinanceImpactRequest | None = None):
+    try:
+        return await get_container(request).finance_impact.impact_summary(payload.run_id if payload else None)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
+@router.post("/finance/impact-pack", dependencies=[Depends(require_api_key)])
+async def finance_impact_pack(request: Request, payload: FinanceImpactRequest | None = None):
+    try:
+        return await get_container(request).finance_impact.export_impact_pack(payload.run_id if payload else None)
     except KeyError:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
 

@@ -208,6 +208,11 @@ class IncidentNarrativeRequest(BaseModel):
     run_id: str | None = None
 
 
+class FinanceImpactRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    run_id: str | None = None
+
+
 class QaResult(BaseModel):
     confidence: float
     risky: bool = False

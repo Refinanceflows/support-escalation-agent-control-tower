@@ -10,6 +10,7 @@ from app.services.audit import AuditService
 from app.services.briefs import IncidentBriefService
 from app.services.customers import CustomerHealthService
 from app.services.drills import DrillService
+from app.services.finance_impact import FinanceImpactService
 from app.services.incident_narrative import IncidentNarrativeService
 from app.services.ops import OpsService
 from app.services.outbox import OutboxService
@@ -59,6 +60,8 @@ SCENARIO_ENDPOINTS = [
     "POST /replay-lab/report",
     "POST /incidents/timeline",
     "POST /incidents/executive-narrative",
+    "POST /finance/impact-summary",
+    "POST /finance/impact-pack",
     "GET /handoff/on-call-summary",
     "POST /handoff/customer-comms-pack",
     "GET /metrics/agent-performance",
@@ -82,6 +85,7 @@ class DemoService:
         ops: OpsService,
         replay_lab: ReplayLabService,
         incident_narratives: IncidentNarrativeService,
+        finance_impact: FinanceImpactService,
         audit: AuditService,
         demo_packs_dir: Path,
     ):
@@ -98,6 +102,7 @@ class DemoService:
         self.ops = ops
         self.replay_lab = replay_lab
         self.incident_narratives = incident_narratives
+        self.finance_impact = finance_impact
         self.audit = audit
         self.demo_packs_dir = demo_packs_dir
 
@@ -145,6 +150,7 @@ class DemoService:
         executive_narrative = await self.incident_narratives.export_executive_narrative(
             approved_run.run_id
         )
+        finance_pack = await self.finance_impact.export_impact_pack(approved_run.run_id)
 
         await self.audit.record(
             AuditEvent(
@@ -172,6 +178,8 @@ class DemoService:
             "replay_report_json": replay_report["json_path"],
             "incident_narrative_markdown": executive_narrative["markdown_path"],
             "incident_narrative_json": executive_narrative["json_path"],
+            "finance_impact_markdown": finance_pack["markdown_path"],
+            "finance_impact_json": finance_pack["json_path"],
         }
         summary_metrics = {
             "ticket_id": ticket.ticket_id,
@@ -200,6 +208,9 @@ class DemoService:
             ],
             "incident_impact_status": executive_narrative["impact_status"],
             "incident_narrative_path": executive_narrative["markdown_path"],
+            "finance_exposure_usd": finance_pack["estimated_financial_exposure_usd"],
+            "finance_readiness_status": finance_pack["readiness_status"],
+            "finance_impact_path": finance_pack["markdown_path"],
         }
         key_metrics = {
             "ops_summary": ops_snapshot["summary_metrics"],
@@ -237,6 +248,12 @@ class DemoService:
                     "narrative_id": executive_narrative["narrative_id"],
                     "impact_status": executive_narrative["impact_status"],
                     "markdown_path": executive_narrative["markdown_path"],
+                },
+                "finance_impact": {
+                    "pack_id": finance_pack["pack_id"],
+                    "readiness_status": finance_pack["readiness_status"],
+                    "estimated_financial_exposure_usd": finance_pack["estimated_financial_exposure_usd"],
+                    "markdown_path": finance_pack["markdown_path"],
                 },
             },
         }
@@ -308,17 +325,27 @@ class DemoService:
                 f"approved run and {metrics['outbox_dispatch_count']} local outbox dispatches."
             ),
             "Demonstrates production readiness with a forced tool-failure drill and SLA queue simulation.",
-            "Exports manager-ready Markdown and JSON artifacts for incident, weekly review, checklist, account brief, and optimization review.",
             (
-            f"Uses Replay Lab to compare changed conditions with risk score "
-            f"{metrics['replay_risk_score']} before approving automation changes."
-        ),
-        (
-            f"Adds an executive incident narrative with customer impact status "
-            f"`{metrics['incident_impact_status']}`."
-        ),
-        f"Frames operational maturity with SLO status `{metrics['slo_overall_status']}` and concrete optimization recommendations.",
-    ]
+                "Exports manager-ready Markdown and JSON artifacts for incident, weekly review, "
+                "checklist, account brief, and optimization review."
+            ),
+            (
+                f"Uses Replay Lab to compare changed conditions with risk score "
+                f"{metrics['replay_risk_score']} before approving automation changes."
+            ),
+            (
+                f"Adds an executive incident narrative with customer impact status "
+                f"`{metrics['incident_impact_status']}`."
+            ),
+            (
+                f"Quantifies support cost, SLA exposure, engineering effort, and ARR risk with "
+                f"finance status `{metrics['finance_readiness_status']}`."
+            ),
+            (
+                f"Frames operational maturity with SLO status `{metrics['slo_overall_status']}` "
+                "and concrete optimization recommendations."
+            ),
+        ]
 
     def _write_pack(
         self,
@@ -374,6 +401,8 @@ class DemoService:
                 f"- Replay risk score: {metrics['replay_risk_score']}",
                 f"- Replay recommendation: {metrics['replay_recommended_action']}",
                 f"- Incident impact status: {metrics['incident_impact_status']}",
+                f"- Finance exposure: ${metrics['finance_exposure_usd']:,.2f}",
+                f"- Finance status: {metrics['finance_readiness_status']}",
                 "",
                 "## Interview Talking Points",
                 *talking_points,

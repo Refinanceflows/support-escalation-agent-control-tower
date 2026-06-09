@@ -60,6 +60,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /incidents/rca-pack`
   Writes Markdown and JSON under the ignored RCA folder, normally `data/rca_packs/`. The optional body can include `run_id`; otherwise it uses the latest/sample fallback. The pack includes a postmortem narrative, timeline, trace/audit evidence, action owners, due dates, recurrence risk, customer follow-up state, deterministic RCA coverage across outage/API, tool failure/retry, privacy/data export, billing/customer risk, and low-confidence human-review scenarios, proof commands, and limitations.
 
+- `POST /finance/impact-summary`
+  Returns local deterministic finance impact estimates for a supplied `run_id`, the latest local run, or a deterministic sample fallback when omitted. The response includes ticket/customer context, support cost, SLA penalty exposure, engineering effort, customer ARR at risk, finance rollup, risk flags, recommended actions, dashboard metrics, assumptions, local commands, and limitations. It does not call CRM, billing, finance, Azure, OpenAI, Zendesk, Jira, Slack, or external systems.
+
+- `POST /finance/impact-pack`
+  Writes Markdown and JSON under the ignored finance impact folder, normally `data/finance_impact_packs/`. The pack includes the finance impact summary, executive decision table, finance controls, local verification commands, and explicit local-only limitations. The optional body can include `run_id`; otherwise it uses the latest/sample fallback.
+
 - `GET /leadership/scorecard`
   Returns the Support Automation KPI Scorecard for leadership review. The response includes numeric scores for automation safety, approval health, SLA risk, escalation quality, retry/failure behavior, policy blocks, replay risk, customer impact, and operator readiness. It also includes trend-ish local values, risk flags, recommended actions, artifact links, KPI definitions, local commands, and readiness status.
 
@@ -317,6 +323,20 @@ curl http://localhost:8000/leadership/scorecard \
 
 curl -X POST http://localhost:8000/leadership/review-pack \
   -H "x-api-key: demo-control-tower-key"
+```
+
+Estimate finance impact and export the executive pack:
+
+```bash
+curl -X POST http://localhost:8000/finance/impact-summary \
+  -H "content-type: application/json" \
+  -H "x-api-key: demo-control-tower-key" \
+  -d '{"run_id": "{run_id}"}'
+
+curl -X POST http://localhost:8000/finance/impact-pack \
+  -H "content-type: application/json" \
+  -H "x-api-key: demo-control-tower-key" \
+  -d '{"run_id": "{run_id}"}'
 ```
 
 Audit KB readiness and export a KB refresh plan:

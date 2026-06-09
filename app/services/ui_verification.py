@@ -53,6 +53,7 @@ EXPECTED_VIEWS = [
     "API Contract",
     "Runtime Demo",
     "Scenario Dataset",
+    "Finance Impact",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -131,6 +132,18 @@ EXPECTED_ENDPOINTS = [
     {
         "endpoint": "POST /incidents/rca-pack",
         "purpose": "Postmortem RCA + Corrective Action Tracking Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /finance/impact-summary",
+        "purpose": "Escalation Finance Impact estimate with support cost, SLA exposure, engineering effort, and ARR risk.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /finance/impact-pack",
+        "purpose": "Escalation Finance Impact Pack export.",
         "dashboard_reference_required": True,
         "route_required": True,
     },
@@ -285,6 +298,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Postmortem RCA",
         "producer_endpoint": "POST /incidents/rca-pack",
         "artifact_directory": "data/rca_packs",
+    },
+    {
+        "tab_label": "Finance Impact",
+        "producer_endpoint": "POST /finance/impact-pack",
+        "artifact_directory": "data/finance_impact_packs",
     },
     {
         "tab_label": "Leadership Scorecard",
@@ -662,6 +680,11 @@ class UIVerificationService:
                 "view": "Postmortem RCA",
                 "placeholder": "screenshots/postmortem-rca-corrective-actions.png",
                 "what_to_capture": "Root cause, corrective action owners, recurrence risk, scenario coverage, and generated pack paths.",
+            },
+            {
+                "view": "Finance Impact",
+                "placeholder": "screenshots/finance-impact-exposure-rollup.png",
+                "what_to_capture": "Financial exposure, direct cost, ARR at risk, support minutes, engineering hours, and generated pack paths.",
             },
         ]
 

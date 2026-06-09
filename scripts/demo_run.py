@@ -291,6 +291,22 @@ def run_with_http_server() -> dict | None:
         )
         rca_pack_response.raise_for_status()
         result["rca_pack"] = rca_pack_response.json()
+        finance_summary_response = requests.post(
+            f"{BASE}/finance/impact-summary",
+            headers=headers,
+            json={"run_id": run_id},
+            timeout=60,
+        )
+        finance_summary_response.raise_for_status()
+        result["finance_impact_summary"] = finance_summary_response.json()
+        finance_pack_response = requests.post(
+            f"{BASE}/finance/impact-pack",
+            headers=headers,
+            json={"run_id": run_id},
+            timeout=60,
+        )
+        finance_pack_response.raise_for_status()
+        result["finance_impact_pack"] = finance_pack_response.json()
         result["mode"] = "http"
         return result
     except Exception:
@@ -445,6 +461,20 @@ def run_in_process() -> dict:
         rca_pack_response = client.post("/incidents/rca-pack", headers={"x-api-key": token})
         rca_pack_response.raise_for_status()
         result["rca_pack"] = rca_pack_response.json()
+        finance_summary_response = client.post(
+            "/finance/impact-summary",
+            headers={"x-api-key": token},
+            json={"run_id": run_id},
+        )
+        finance_summary_response.raise_for_status()
+        result["finance_impact_summary"] = finance_summary_response.json()
+        finance_pack_response = client.post(
+            "/finance/impact-pack",
+            headers={"x-api-key": token},
+            json={"run_id": run_id},
+        )
+        finance_pack_response.raise_for_status()
+        result["finance_impact_pack"] = finance_pack_response.json()
         result["mode"] = "in-process"
         return result
 
@@ -489,6 +519,8 @@ def main():
     scenario_eval_pack = result["scenario_eval_pack"]
     postmortem_rca = result["postmortem_rca"]
     rca_pack = result["rca_pack"]
+    finance_summary = result["finance_impact_summary"]
+    finance_pack = result["finance_impact_pack"]
     policy_simulation = policy["pack"]["primary_simulation"]
     policy_change = policy_change_pack["pack"]["simulation"]
 
@@ -626,8 +658,17 @@ def main():
     )
     print("RCA Pack:", rca_pack["markdown_path"])
     print("RCA Pack JSON:", rca_pack["json_path"])
+    print(
+        "Finance impact:",
+        finance_summary["finance_rollup"]["readiness_status"],
+        f"exposure=${finance_summary['finance_rollup']['estimated_financial_exposure_usd']:,.2f}",
+        f"arr_at_risk=${finance_summary['finance_rollup']['arr_at_risk_usd']:,.2f}",
+    )
+    print("Finance Impact Pack:", finance_pack["markdown_path"])
+    print("Finance Impact JSON:", finance_pack["json_path"])
     print("Incident impact status:", metrics["incident_impact_status"])
     print("Incident narrative:", metrics["incident_narrative_path"])
+    print("Finance impact artifact:", metrics["finance_impact_path"])
     print("Ticket:", metrics["ticket_id"])
     print("Run:", metrics["run_id"], metrics["run_status"], metrics["final_action"])
     print("Trace:", metrics["trace_id"], f"events={metrics['trace_event_count']}")

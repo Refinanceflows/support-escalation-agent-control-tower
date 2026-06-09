@@ -151,6 +151,12 @@ The endpoint accepts an optional `run_id`. Without one, it uses the latest local
 
 `POST /incidents/rca-pack` writes Markdown and JSON under `data/rca_packs/`. The pack includes postmortem narrative, timeline, trace/audit evidence, corrective action owners, due dates, recurrence risk, customer follow-up state, proof commands, limitations, and deterministic RCA coverage for outage/API incident, tool failure/retry, privacy/data export, billing/customer risk, and low-confidence ambiguity needing human review.
 
+## Escalation Finance Impact
+
+`POST /finance/impact-summary` estimates the business impact of a supplied, latest, or deterministic sample run. It uses local ticket/run state, trace volume, approval/outbox state, customer health, and `sample_data/customers.json` ARR metadata to calculate support cost, SLA penalty exposure, engineering effort, customer ARR at risk, direct cost, total exposure, risk flags, and owner actions.
+
+`POST /finance/impact-pack` writes Markdown and JSON under `data/finance_impact_packs/`. The pack includes the finance summary, executive decision table, finance controls, local proof commands, assumptions, and limitations. It remains local/mock only and does not call CRM, billing, finance, Azure, OpenAI, Zendesk, Jira, Slack, or external systems.
+
 ## Git Readiness and Branch Hygiene
 
 `GET /git/readiness` is the local GitHub Push Readiness gate. It uses only read-only git inspection to report repo detection, current branch, tracked/untracked/modified/ignored summary, generated artifact directories that should stay ignored, source/doc/test/dashboard files changed, suspicious large/generated files, GitHub Actions workflow presence, README final handoff mention, `.env.example`, dirty-worktree guidance, and recommended commit groups.

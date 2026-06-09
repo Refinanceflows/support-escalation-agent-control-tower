@@ -46,6 +46,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Verifies Streamlit dashboard source wiring, expected tabs, endpoint references, and screenshot placeholders.",
     },
+    {
+        "name": "Escalation Finance Impact Pack",
+        "directory": "data/finance_impact_packs",
+        "producer": "POST /finance/impact-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Quantifies local support cost, SLA penalty exposure, engineering effort, and ARR at risk for executive escalation review.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -76,6 +83,7 @@ REVIEWER_PURPOSES = {
     "data/api_contracts": "OpenAPI-derived API Contract Audit and runnable Reviewer Collection proof for fresh-clone endpoint review.",
     "data/runtime_packs": "Runtime Demo Server Pack proof with exact local FastAPI and Streamlit commands, health checks, port checks, troubleshooting, and screenshot placeholders.",
     "data/scenario_packs": "Scenario Dataset Eval Coverage Pack proof for classification, SLA, approval, escalation, low-confidence, and failure coverage.",
+    "data/finance_impact_packs": EXTRA_ARTIFACTS[3]["reviewer_purpose"],
 }
 
 

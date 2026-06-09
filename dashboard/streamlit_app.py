@@ -66,6 +66,7 @@ tabs = st.tabs(
         "Scenario Dataset",
         "On-Call Handoff",
         "Postmortem RCA",
+        "Finance Impact",
     ]
 )
 
@@ -2063,4 +2064,66 @@ with tabs[35]:
         )
         st.markdown(pack["markdown"])
         with st.expander("RCA Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[36]:
+    run_id = st.text_input("Finance run ID", value=st.session_state.get("run_id", ""))
+    payload = {"run_id": run_id} if run_id else None
+    left, right = st.columns(2)
+    if left.button("Refresh Finance Impact", type="primary", use_container_width=True):
+        summary = api("POST", "/finance/impact-summary", payload)
+        st.session_state["finance_impact_summary"] = summary
+        st.session_state["run_id"] = summary["run_id"]
+    if right.button("Export Finance Impact Pack", use_container_width=True):
+        pack = api("POST", "/finance/impact-pack", payload)
+        st.session_state["finance_impact_pack"] = pack
+        st.session_state["finance_impact_summary"] = pack["pack"]["impact_summary"]
+        st.session_state["run_id"] = pack["run_id"]
+        st.success(f"Finance Impact Pack exported: {pack['markdown_path']}")
+
+    summary = st.session_state.get("finance_impact_summary") or api("POST", "/finance/impact-summary", payload)
+    st.session_state["finance_impact_summary"] = summary
+    metrics = summary["dashboard_metrics"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Exposure", f"${metrics['estimated_financial_exposure_usd']:,.0f}")
+    c2.metric("Direct cost", f"${metrics['direct_cost_usd']:,.0f}")
+    c3.metric("ARR at risk", f"${metrics['arr_at_risk_usd']:,.0f}")
+    c4.metric("Finance status", metrics["readiness_status"])
+
+    c5, c6 = st.columns(2)
+    c5.metric("Support minutes", metrics["support_minutes"])
+    c6.metric("Engineering hours", metrics["engineering_hours"])
+
+    st.subheader("Executive Summary")
+    st.write(summary["executive_summary"])
+
+    st.subheader("Support Cost Components")
+    st.dataframe(summary["support_cost"]["components"], use_container_width=True, hide_index=True)
+
+    st.subheader("Engineering Effort Components")
+    st.dataframe(summary["engineering_effort"]["components"], use_container_width=True, hide_index=True)
+
+    st.subheader("ARR Risk Drivers")
+    st.dataframe(summary["customer_arr_at_risk"]["drivers"], use_container_width=True, hide_index=True)
+
+    st.subheader("Recommended Actions")
+    st.dataframe(summary["recommended_actions"], use_container_width=True, hide_index=True)
+
+    st.subheader("Assumptions and Limitations")
+    st.json({"assumptions": summary["assumptions"], "limitations": summary["limitations"]})
+
+    pack = st.session_state.get("finance_impact_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Finance Impact Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.subheader("Executive Decision Table")
+        st.dataframe(pack["pack"]["executive_decision_table"], use_container_width=True, hide_index=True)
+        st.markdown(pack["markdown"])
+        with st.expander("Finance Impact JSON"):
             st.json(pack["pack"])

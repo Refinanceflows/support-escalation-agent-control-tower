@@ -1,7 +1,7 @@
 [
-  {"customer": "Northstar Health", "segment": "Healthcare", "tier": "enterprise", "region": "US"},
-  {"customer": "Atlas Logistics", "segment": "Logistics", "tier": "enterprise", "region": "EU"},
-  {"customer": "BrightWorks Studio", "segment": "Media", "tier": "growth", "region": "US"},
-  {"customer": "Cobalt Retail", "segment": "Retail", "tier": "enterprise", "region": "US"},
-  {"customer": "Evergreen Bank", "segment": "Financial Services", "tier": "enterprise", "region": "US"}
+  {"customer": "Northstar Health", "segment": "Healthcare", "tier": "enterprise", "region": "US", "arr_usd": 420000},
+  {"customer": "Atlas Logistics", "segment": "Logistics", "tier": "enterprise", "region": "EU", "arr_usd": 310000},
+  {"customer": "BrightWorks Studio", "segment": "Media", "tier": "growth", "region": "US", "arr_usd": 48000},
+  {"customer": "Cobalt Retail", "segment": "Retail", "tier": "enterprise", "region": "US", "arr_usd": 260000},
+  {"customer": "Evergreen Bank", "segment": "Financial Services", "tier": "enterprise", "region": "US", "arr_usd": 520000}
 ]

@@ -13,6 +13,7 @@ from app.services.customers import CustomerHealthService
 from app.services.demo import DemoService
 from app.services.drills import DrillService
 from app.services.final_handoff import FinalHandoffService
+from app.services.finance_impact import FinanceImpactService
 from app.services.git_readiness import GitReadinessService
 from app.services.incident_narrative import IncidentNarrativeService
 from app.services.knowledge import KnowledgeQualityService, KnowledgeRetrievalService
@@ -144,6 +145,17 @@ class ServiceContainer:
             self.audit,
             settings.state_file.parent / "incident_narratives",
         )
+        self.finance_impact = FinanceImpactService(
+            self.store,
+            self.tickets,
+            self.workflow,
+            self.trace,
+            self.approvals,
+            self.customers,
+            self.audit,
+            Path("sample_data/customers.json"),
+            settings.state_file.parent / "finance_impact_packs",
+        )
         self.demo = DemoService(
             self.tickets,
             self.workflow,
@@ -158,6 +170,7 @@ class ServiceContainer:
             self.ops,
             self.replay_lab,
             self.incident_narratives,
+            self.finance_impact,
             self.audit,
             settings.state_file.parent / "demo_packs",
         )
