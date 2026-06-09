@@ -179,6 +179,30 @@ class PolicyExportRequest(PolicySimulationRequest):
     pass
 
 
+class PolicyChangeKnobs(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    confidence_cutoff: float = Field(default=0.62, ge=0.0, le=1.0)
+    sla_high_risk_threshold: float = Field(default=0.70, ge=0.0, le=1.0)
+    auto_approval_max_blast_radius: int = Field(default=35, ge=0, le=100)
+
+
+class PolicyChangeSimulationRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    baseline: PolicyChangeKnobs = Field(default_factory=PolicyChangeKnobs)
+    proposed: PolicyChangeKnobs = Field(
+        default_factory=lambda: PolicyChangeKnobs(
+            confidence_cutoff=0.72,
+            sla_high_risk_threshold=0.65,
+            auto_approval_max_blast_radius=25,
+        )
+    )
+    scenario_limit: int | None = Field(default=None, ge=1, le=25)
+
+
+class PolicyChangePackRequest(PolicyChangeSimulationRequest):
+    pass
+
+
 class IncidentNarrativeRequest(BaseModel):
     model_config = ConfigDict(extra="ignore")
     run_id: str | None = None

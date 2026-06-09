@@ -99,6 +99,12 @@ EXPECTED_ARTIFACTS = [
         "formats": ["markdown", "json"],
     },
     {
+        "name": "Agent Policy Simulation Pack",
+        "directory": "data/policy_change_packs",
+        "producer": "POST /policies/change-pack",
+        "formats": ["markdown", "json"],
+    },
+    {
         "name": "Leadership review",
         "directory": "data/leadership_reviews",
         "producer": "POST /leadership/review-pack",

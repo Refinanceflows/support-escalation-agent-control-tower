@@ -9,6 +9,8 @@ from app.models import (
     ApprovalDecision,
     AuditEvent,
     IncidentNarrativeRequest,
+    PolicyChangePackRequest,
+    PolicyChangeSimulationRequest,
     PolicyExportRequest,
     PolicySimulationRequest,
     PlaybookRecommendRequest,
@@ -154,6 +156,22 @@ async def policy_export(request: Request, payload: PolicyExportRequest | None = 
         return await get_container(request).policy_guardrails.export_pack(payload)
     except KeyError:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
+@router.post("/policies/change-simulation", dependencies=[Depends(require_api_key)])
+async def policy_change_simulation(
+    request: Request,
+    payload: PolicyChangeSimulationRequest | None = None,
+):
+    return await get_container(request).policy_change_simulation.simulate(payload)
+
+
+@router.post("/policies/change-pack", dependencies=[Depends(require_api_key)])
+async def policy_change_pack(
+    request: Request,
+    payload: PolicyChangePackRequest | None = None,
+):
+    return await get_container(request).policy_change_simulation.export_pack(payload)
 
 
 @router.post("/incidents/timeline", dependencies=[Depends(require_api_key)])

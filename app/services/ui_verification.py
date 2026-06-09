@@ -105,6 +105,18 @@ EXPECTED_ENDPOINTS = [
         "route_required": True,
     },
     {
+        "endpoint": "POST /policies/change-simulation",
+        "purpose": "Policy change simulation preview.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /policies/change-pack",
+        "purpose": "Agent Policy Simulation Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
         "endpoint": "POST /incidents/executive-narrative",
         "purpose": "Incident Narrative artifact export.",
         "dashboard_reference_required": True,
@@ -258,6 +270,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Policy Guardrails",
         "producer_endpoint": "POST /policies/export",
         "artifact_directory": "data/policy_packs",
+    },
+    {
+        "tab_label": "Policy Guardrails",
+        "producer_endpoint": "POST /policies/change-pack",
+        "artifact_directory": "data/policy_change_packs",
     },
     {
         "tab_label": "Incident Narrative",

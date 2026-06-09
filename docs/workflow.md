@@ -201,6 +201,10 @@ The response returns the policy decision, required approval type, approval chain
 
 `POST /policies/export` writes Markdown and JSON under `data/policy_packs/`. The pack includes simulated policies, matched rules, approval matrix, sample scenario outcomes, local verification commands, JD skills demonstrated, and five interviewer talking points so support managers can explain why an automation policy would or would not be approved.
 
+`POST /policies/change-simulation` reads the local scenario corpus, runs each ticket through the normal workflow, and compares baseline vs proposed policy knobs: `confidence_cutoff`, `sla_high_risk_threshold`, and `auto_approval_max_blast_radius`. The response reports approval-volume deltas, blocked-review deltas, SLA routing accuracy, changed scenario routes, blast-radius factors, and a rollout recommendation.
+
+`POST /policies/change-pack` writes Markdown and JSON under `data/policy_change_packs/`. The pack is reviewer-facing evidence for policy-change management: approval thresholds, confidence cutoffs, SLA routing changes, blast-radius scoring, scenario-level before/after decisions, local verification commands, and interviewer talking points.
+
 ## Customer Impact Timeline and Executive Incident Narrative
 
 `POST /incidents/timeline` is the executive story layer over the local control tower evidence. It accepts an optional `run_id`; without one, it uses the latest local run or bootstraps a deterministic sample incident. The service builds a time-ordered Customer Impact Timeline from the ticket, workflow trace, human approvals, outbox dispatches, incident brief, remediation checklist, weekly review, account brief, SLO posture, Replay Lab output, and policy guardrail decision.

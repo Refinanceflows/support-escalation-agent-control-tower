@@ -23,6 +23,7 @@ from app.services.oncall_handoff import OnCallHandoffService
 from app.services.ops import OpsService
 from app.services.outbox import OutboxService
 from app.services.playbooks import PlaybookService
+from app.services.policy_change_simulation import PolicyChangeSimulationService
 from app.services.policy_guardrails import PolicyGuardrailService
 from app.services.postmortem_rca import PostmortemRcaService
 from app.services.portfolio import PortfolioService
@@ -120,6 +121,12 @@ class ServiceContainer:
             self.replay_lab,
             settings.state_file.parent / "policy_packs",
             settings.low_confidence_threshold,
+        )
+        self.policy_change_simulation = PolicyChangeSimulationService(
+            self.tickets,
+            self.workflow,
+            Path("sample_data/scenarios.json"),
+            settings.state_file.parent / "policy_change_packs",
         )
         self.incident_narratives = IncidentNarrativeService(
             self.store,

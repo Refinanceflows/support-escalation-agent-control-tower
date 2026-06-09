@@ -26,6 +26,7 @@ The included pytest suite covers the core behavior expected of the control tower
 - operator readiness pack Markdown/JSON contents and local file creation under `data/operator_packs/`
 - Replay Lab changed-decision detection, degraded/failing adapter scenarios, fallback/sample endpoint behavior, and report export under `data/replay_reports/`
 - Policy Guardrail simulation for low confidence, SLA pressure, enterprise/VIP tier, external vs internal actions, adapter health, replay risk, missing/conflicting KB context, fallback behavior, and pack export under `data/policy_packs/`
+- Agent Policy Simulation Pack for approval threshold, confidence cutoff, SLA routing, blast-radius, scenario-level policy-change deltas, and pack export under `data/policy_change_packs/`
 - Customer Impact Timeline ordering, latest/sample fallback, policy/replay annotations, endpoint errors, and Executive Incident Narrative export under `data/incident_narratives/`
 - Leadership Scorecard calculation, risk flags, endpoint behavior, and review pack export under `data/leadership_reviews/`
 - Knowledge Quality Auditor coverage score, missing citation detection, conflict detection, workflow retrieval evidence, endpoint behavior, and KB refresh plan export under `data/kb_refresh_plans/`

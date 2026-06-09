@@ -35,6 +35,7 @@ The default mode uses deterministic local/mock providers, so a fresh clone runs 
 - Replay report export under `data/replay_reports/` with original-vs-replay comparison, trace IDs, risk flags, verification commands, JD skills, and interviewer talking points
 - Agent Policy Guardrail Center with approval policy simulation for low confidence, SLA pressure, enterprise/VIP tier, external vs internal actions, adapter health, replay risk, and KB grounding
 - Policy pack export under `data/policy_packs/` with simulated policies, matched rules, approval matrix, sample outcomes, verification commands, JD skills, and interviewer talking points
+- Agent Policy Simulation Pack export under `data/policy_change_packs/` with approval threshold, confidence cutoff, SLA routing, blast-radius, scenario delta, and rollout recommendation evidence
 - Customer Impact Timeline and Executive Incident Narrative export under `data/incident_narratives/`, connecting ticket intake, triage, approval, dispatch, policy, replay, SLO, account health, and owner next steps into one incident story
 - Postmortem RCA + Corrective Action Tracking Pack under `data/rca_packs/`, with root cause classification, contributing factors, corrective action owners, due dates, customer follow-up state, recurrence risk, trace/audit links, proof commands, and deterministic scenario coverage
 - Leadership Scorecard for automation KPI review across safety, approvals, SLA risk, escalation quality, failures, policy blocks, replay risk, customer impact, and operator readiness
@@ -56,7 +57,7 @@ The default mode uses deterministic local/mock providers, so a fresh clone runs 
 - Scenario Dataset catalog and Eval Coverage Pack under `data/scenario_packs/`, with richer fake enterprise tickets across security, billing, privacy exports, outages, webhook/API failures, onboarding, renewal risk, and ambiguity
 - Local mock LLM provider behind an interface
 - API key auth, structured logs, request trace IDs, audit events, token/latency/cost metrics
-- Streamlit dashboard for queue, approvals, trace timeline, outbox payloads, reliability drills, SLA simulation, incident briefs, incident narratives, Postmortem RCA, playbooks/remediation, customer health/account briefs, ops analytics, SLO optimization, Replay Lab, Policy Guardrails, Operator QA / Readiness Pack, Leadership Scorecard, Knowledge Quality, Portfolio Pack, Release Pack, CI Doctor / Audit Pack, Reviewer Quickstart, Artifact Inventory, UI Verification, Final Handoff, On-Call Handoff, Git Readiness, API Contract, Runtime Demo, Scenario Dataset, and metrics
+- Streamlit dashboard for queue, approvals, trace timeline, outbox payloads, reliability drills, SLA simulation, incident briefs, incident narratives, Postmortem RCA, playbooks/remediation, customer health/account briefs, ops analytics, SLO optimization, Replay Lab, Policy Guardrails, Policy Change Simulation, Operator QA / Readiness Pack, Leadership Scorecard, Knowledge Quality, Portfolio Pack, Release Pack, CI Doctor / Audit Pack, Reviewer Quickstart, Artifact Inventory, UI Verification, Final Handoff, On-Call Handoff, Git Readiness, API Contract, Runtime Demo, Scenario Dataset, and metrics
 - Sample tickets, scenario catalog, playbooks, and KB fixtures
 - Docker Compose, GitHub Actions CI, `.env.example`, Makefile, pytest suite
 
@@ -168,6 +169,8 @@ The command calls `POST /demo/evidence-pack`, `POST /ops/operator-readiness-pack
 22. Export `POST /replay-lab/report` to write a Markdown/JSON Change Risk / Escalation Replay report under `data/replay_reports/`.
 23. Run `POST /policies/simulate` to preview the approval policy decision for replies, Jira, Slack, and engineering escalation actions.
 24. Export `POST /policies/export` to write a Markdown/JSON Policy Guardrail Pack under `data/policy_packs/`.
+24a. Run `POST /policies/change-simulation` to compare approval thresholds, confidence cutoffs, SLA routing thresholds, and blast-radius scoring across the local scenario corpus.
+24b. Export `POST /policies/change-pack` to write an Agent Policy Simulation Pack under `data/policy_change_packs/`.
 25. Run `POST /incidents/timeline` to build the Customer Impact Timeline for a supplied, latest, or deterministic sample run.
 26. Export `POST /incidents/executive-narrative` to write a Markdown/JSON executive incident story under `data/incident_narratives/`.
 27. Review `GET /incidents/postmortem-summary` for root cause, corrective actions, customer follow-up state, recurrence risk, trace links, and scenario coverage.
@@ -257,6 +260,8 @@ Important variables:
 - `POST /replay-lab/report`: writes Markdown and JSON under `data/replay_reports/` with modifiers, trace IDs, risk flags, local verification commands, JD skills demonstrated, and five interviewer talking points.
 - `POST /policies/simulate`: returns an approval policy decision, required approval type, blocked actions, allowed actions, matched rules, warnings, and recommended operator action for a supplied, latest, or sample run.
 - `POST /policies/export`: writes Markdown and JSON under `data/policy_packs/` with simulated policies, matched rules, approval matrix, sample scenario outcomes, local verification commands, JD skills demonstrated, and five interviewer talking points.
+- `POST /policies/change-simulation`: compares baseline and proposed approval thresholds, confidence cutoffs, and SLA high-risk thresholds over the local scenario corpus with blast-radius scoring.
+- `POST /policies/change-pack`: writes Markdown and JSON under `data/policy_change_packs/` with scenario-level policy-change deltas, SLA routing impact, rollout recommendation, and reviewer talking points.
 - `POST /incidents/timeline`: returns ordered Customer Impact Timeline events, impact summary, internal/external action split, policy/replay annotations, unresolved risks, owner next steps, and evidence artifact links for a supplied, latest, or sample run.
 - `POST /incidents/executive-narrative`: writes Markdown and JSON under `data/incident_narratives/` with executive summary, timeline, approval evidence, policy decision, replay risk, SLO posture, JD skills, and interviewer talking points.
 - `GET /incidents/postmortem-summary`: returns Postmortem RCA summary with severity, root cause category, contributing factors, approval/comms state, trace links, corrective actions, recurrence risk, customer follow-up state, readiness, and RCA scenario coverage.

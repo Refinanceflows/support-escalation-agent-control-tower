@@ -57,6 +57,7 @@ REVIEWER_PURPOSES = {
     "data/reviewer_packs": "Reviewer walkthrough with command checklist, proof tour, role-specific notes, and README blurb.",
     "data/replay_reports": "Counterfactual safety proof for changed SLA, KB, adapter, confidence, and approval conditions.",
     "data/policy_packs": "Policy guardrail proof for blocked/gated actions, approvals, and risk reasoning.",
+    "data/policy_change_packs": "Policy-change simulation proof for approval thresholds, confidence cutoffs, SLA routing, and blast-radius scoring.",
     "data/leadership_reviews": "Leadership-ready KPI and automation-readiness evidence.",
     "data/kb_refresh_plans": "Knowledge quality audit findings turned into owner-ready refresh work.",
     "data/incident_narratives": "Executive incident narrative and customer-impact timeline evidence.",

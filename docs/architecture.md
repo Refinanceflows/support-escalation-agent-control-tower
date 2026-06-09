@@ -46,6 +46,7 @@ The default persistence layer is a local SQLite database configured by `CONTROL_
 - generated artifact paths under ignored `data/` folders, including `data/operator_packs/`
 - Replay Lab reports under ignored `data/replay_reports/`
 - Policy Guardrail packs under ignored `data/policy_packs/`
+- Policy Change Simulation packs under ignored `data/policy_change_packs/`
 - Executive incident narratives under ignored `data/incident_narratives/`
 - Leadership review packs under ignored `data/leadership_reviews/`
 - KB refresh plans under ignored `data/kb_refresh_plans/`
@@ -80,6 +81,8 @@ Runbook QA is an observability consumer rather than another external integration
 Replay Lab follows the same local-only boundary. It clones saved run state, applies scenario modifiers for SLA pressure, KB context, adapter health, confidence, and approval policy, then compares original and replay outcomes without invoking adapters or external providers.
 
 The Policy Guardrail Center is also local-only. It uses deterministic policy rules rather than an external policy engine, and separates customer-visible replies from internal Jira, Slack, and engineering escalation actions so managers can preview approval policy behavior before automation changes ship.
+
+The Policy Change Simulation service is the rollout workbench for those controls. It evaluates the local scenario corpus through the normal workflow, then compares baseline and proposed approval thresholds, confidence cutoffs, and SLA high-risk thresholds. Each scenario gets an explainable blast-radius score so reviewers can see whether a policy change increases auto-approval risk, manual review load, or SLA routing regressions before anything external is enabled.
 
 The Incident Narrative service is a local evidence composer. It may generate missing local artifacts, but it only calls existing deterministic services and writes Markdown/JSON under ignored `data/incident_narratives/`.
 

@@ -796,6 +796,82 @@ with tabs[18]:
         )
         st.markdown(pack["markdown"])
 
+    st.divider()
+    st.subheader("Policy Change Simulation")
+    b1, b2, b3 = st.columns(3)
+    baseline_confidence = b1.slider("Baseline confidence cutoff", 0.0, 1.0, 0.62, 0.01)
+    baseline_sla = b2.slider("Baseline SLA high threshold", 0.0, 1.0, 0.70, 0.01)
+    baseline_blast = b3.slider("Baseline auto-approval blast max", 0, 100, 35, 1)
+    p1, p2, p3 = st.columns(3)
+    proposed_confidence = p1.slider("Proposed confidence cutoff", 0.0, 1.0, 0.72, 0.01)
+    proposed_sla = p2.slider("Proposed SLA high threshold", 0.0, 1.0, 0.65, 0.01)
+    proposed_blast = p3.slider("Proposed auto-approval blast max", 0, 100, 25, 1)
+    scenario_limit = st.slider("Policy-change scenario limit", 1, 25, 9, 1)
+    change_payload = {
+        "baseline": {
+            "confidence_cutoff": baseline_confidence,
+            "sla_high_risk_threshold": baseline_sla,
+            "auto_approval_max_blast_radius": baseline_blast,
+        },
+        "proposed": {
+            "confidence_cutoff": proposed_confidence,
+            "sla_high_risk_threshold": proposed_sla,
+            "auto_approval_max_blast_radius": proposed_blast,
+        },
+        "scenario_limit": scenario_limit,
+    }
+    change_left, change_right = st.columns(2)
+    if change_left.button("Run Policy Change Simulation", use_container_width=True):
+        change_simulation = api("POST", "/policies/change-simulation", change_payload)
+        st.session_state["policy_change_simulation"] = change_simulation
+    if change_right.button("Export Policy Change Pack", use_container_width=True):
+        change_pack = api("POST", "/policies/change-pack", change_payload)
+        st.session_state["policy_change_pack"] = change_pack
+        st.session_state["policy_change_simulation"] = change_pack["pack"]["simulation"]
+        st.success(f"Policy change pack exported: {change_pack['markdown_path']}")
+
+    change_simulation = st.session_state.get("policy_change_simulation")
+    if change_simulation:
+        summary = change_simulation["summary"]
+        blast = change_simulation["blast_radius"]
+        sla = change_simulation["sla_routing"]
+        d1, d2, d3, d4 = st.columns(4)
+        d1.metric("Auto delta", summary["deltas"]["auto_allowed_count"])
+        d2.metric("Review delta", summary["deltas"]["blocked_for_review_count"])
+        d3.metric("Blast risk", blast["overall_change_risk_score"])
+        d4.metric("SLA changes", sla["changed_route_count"])
+        st.info(summary["recommendation"])
+        st.dataframe(
+            [
+                {
+                    "scenario": row["scenario_id"],
+                    "expected_sla": row["expected_sla_level"],
+                    "baseline_decision": row["baseline"]["decision"],
+                    "proposed_decision": row["proposed"]["decision"],
+                    "sla_route": f"{row['baseline']['sla_route']} -> {row['proposed']['sla_route']}",
+                    "proposed_blast": row["proposed"]["blast_radius_score"],
+                    "changed": ", ".join(row["changed"]) or "none",
+                }
+                for row in change_simulation["scenario_results"]
+            ],
+            use_container_width=True,
+            hide_index=True,
+        )
+        with st.expander("Policy Change Simulation JSON"):
+            st.json(change_simulation)
+
+    change_pack = st.session_state.get("policy_change_pack")
+    if change_pack:
+        st.caption(f"Markdown: {change_pack['markdown_path']}")
+        st.caption(f"JSON: {change_pack['json_path']}")
+        st.download_button(
+            "Download Policy Change Pack",
+            data=change_pack["markdown"],
+            file_name=f"{change_pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(change_pack["markdown"])
+
 with tabs[19]:
     run_id = st.text_input("Incident narrative run ID", value=st.session_state.get("run_id", ""))
     left, right = st.columns(2)

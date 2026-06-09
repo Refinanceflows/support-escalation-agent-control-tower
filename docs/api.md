@@ -42,6 +42,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /policies/export`
   Writes Markdown and JSON under the ignored policy pack folder, normally `data/policy_packs/`. The pack includes simulated policies, primary matched rules, approval matrix, sample scenario outcomes, local verification commands, JD skills demonstrated, and five interviewer talking points.
 
+- `POST /policies/change-simulation`
+  Compares baseline and proposed policy knobs over the deterministic scenario corpus. Inputs include `confidence_cutoff`, `sla_high_risk_threshold`, `auto_approval_max_blast_radius`, and optional `scenario_limit`. Output includes approval-volume deltas, SLA routing impact, scenario-level before/after decisions, and blast-radius scoring.
+
+- `POST /policies/change-pack`
+  Writes Markdown and JSON under `data/policy_change_packs/` with approval threshold, confidence cutoff, SLA routing, blast-radius, local verification, and reviewer talking-point evidence.
+
 - `POST /incidents/timeline`
   Builds the Customer Impact Timeline for a supplied `run_id`, the latest local run, or a deterministic sample fallback when omitted. The response includes ordered timeline events, customer impact summary, internal/external action split, policy guardrail annotations, Replay Lab annotations, unresolved risks, owner next steps, impact status, and evidence artifact links. It reuses existing local exports such as incident brief, remediation checklist, weekly review, account brief, optimization report, and replay report.
 

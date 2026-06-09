@@ -53,6 +53,21 @@ def run_with_http_server() -> dict | None:
         )
         policy_response.raise_for_status()
         result["policy_pack"] = policy_response.json()
+        policy_change_response = requests.post(
+            f"{BASE}/policies/change-pack",
+            headers=headers,
+            json={
+                "proposed": {
+                    "confidence_cutoff": 0.72,
+                    "sla_high_risk_threshold": 0.65,
+                    "auto_approval_max_blast_radius": 25,
+                },
+                "scenario_limit": 9,
+            },
+            timeout=60,
+        )
+        policy_change_response.raise_for_status()
+        result["policy_change_pack"] = policy_change_response.json()
         scorecard_response = requests.get(
             f"{BASE}/leadership/scorecard",
             headers=headers,
@@ -317,6 +332,20 @@ def run_in_process() -> dict:
         )
         policy_response.raise_for_status()
         result["policy_pack"] = policy_response.json()
+        policy_change_response = client.post(
+            "/policies/change-pack",
+            headers={"x-api-key": token},
+            json={
+                "proposed": {
+                    "confidence_cutoff": 0.72,
+                    "sla_high_risk_threshold": 0.65,
+                    "auto_approval_max_blast_radius": 25,
+                },
+                "scenario_limit": 9,
+            },
+        )
+        policy_change_response.raise_for_status()
+        result["policy_change_pack"] = policy_change_response.json()
         scorecard_response = client.get("/leadership/scorecard", headers={"x-api-key": token})
         scorecard_response.raise_for_status()
         result["leadership_scorecard"] = scorecard_response.json()
@@ -427,6 +456,7 @@ def main():
     pack = result["pack"]
     readiness = result["operator_readiness_pack"]
     policy = result["policy_pack"]
+    policy_change_pack = result["policy_change_pack"]
     leadership = result["leadership_scorecard"]
     leadership_review = result["leadership_review_pack"]
     kb_audit = result["knowledge_quality_audit"]
@@ -460,6 +490,7 @@ def main():
     postmortem_rca = result["postmortem_rca"]
     rca_pack = result["rca_pack"]
     policy_simulation = policy["pack"]["primary_simulation"]
+    policy_change = policy_change_pack["pack"]["simulation"]
 
     print("Mode:", result["mode"])
     print("Scenario:", scenario["scenario_id"])
@@ -476,6 +507,13 @@ def main():
     print("Policy approval:", policy_simulation["required_approval_type"])
     print("Policy pack:", policy["markdown_path"])
     print("Policy JSON:", policy["json_path"])
+    print(
+        "Policy change recommendation:",
+        policy_change["summary"]["recommendation"],
+        f"blast={policy_change['blast_radius']['overall_change_risk_score']}",
+    )
+    print("Policy Change Pack:", policy_change_pack["markdown_path"])
+    print("Policy Change JSON:", policy_change_pack["json_path"])
     print(
         "Leadership readiness:",
         leadership["overall_score"],
