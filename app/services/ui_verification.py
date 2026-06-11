@@ -68,6 +68,7 @@ EXPECTED_VIEWS = [
     "Communication Quality",
     "Support Ops Crews",
     "Support Ops Sandbox",
+    "Support Ops Readiness",
     "Tool Governance",
 ]
 
@@ -493,6 +494,18 @@ EXPECTED_ENDPOINTS = [
         "route_required": True,
     },
     {
+        "endpoint": "GET /ops/crew-readiness-drill",
+        "purpose": "Scenario-wide crew readiness drill for process-mode, role, gate, and sandbox coverage.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /ops/crew-readiness-pack",
+        "purpose": "Support Ops Crew Readiness Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
         "endpoint": "GET /tools/registry",
         "purpose": "Tool manifest registry with owners, risk tiers, data exposure, approval boundaries, and usage evidence.",
         "dashboard_reference_required": True,
@@ -711,6 +724,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Support Ops Sandbox",
         "producer_endpoint": "POST /ops/crew-sandbox-pack",
         "artifact_directory": "data/support_ops_sandbox",
+    },
+    {
+        "tab_label": "Support Ops Readiness",
+        "producer_endpoint": "POST /ops/crew-readiness-pack",
+        "artifact_directory": "data/support_ops_readiness",
     },
     {
         "tab_label": "Tool Governance",

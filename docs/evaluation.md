@@ -712,6 +712,36 @@ rg "ops/crew-plan|ops/crew-pack|Support Ops Crews|support_ops_packs|role crews|t
 Get-ChildItem -Recurse -File data\support_ops_packs -ErrorAction SilentlyContinue | Select-Object FullName,Length,LastWriteTime
 ```
 
+## Support Ops Crew Readiness Eval
+
+Run the scenario-wide crew readiness drill:
+
+```powershell
+curl http://localhost:8000/ops/crew-readiness-drill `
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- response title is `Support Ops Crew Readiness Drill`
+- scenario results cover multiple process modes across local scenario fixtures
+- role coverage matrix includes Support Lead, Account Team, Engineering Escalation Owner, and Operations Commander
+- readiness gates check scenario coverage, process-mode alignment, role coverage, sandbox guardrails, and review-gate health
+- sandbox transcript audit reports zero external calls
+
+Export the reviewer artifact:
+
+```powershell
+curl -X POST http://localhost:8000/ops/crew-readiness-pack `
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- Markdown and JSON files are written under `data/support_ops_readiness/`
+- Markdown includes Scenario Results, Readiness Gates, Role Coverage Matrix, Process-Mode Coverage, Sandbox Transcript Audit, Local Proof Commands, and Limitations
+- pack is local/mock only and does not call external LLMs, SaaS tools, shell workers, browser tools, or customer/engineering systems
+
 ## Postmortem RCA and Corrective Action Eval
 
 Inspect the Postmortem RCA summary:

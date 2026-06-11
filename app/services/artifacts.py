@@ -158,6 +158,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Scores engineering escalation drafts for actionability, reproduction evidence, customer impact, routing governance, and noise control before internal dispatch.",
     },
+    {
+        "name": "Support Ops Crew Readiness Pack",
+        "directory": "data/support_ops_readiness",
+        "producer": "POST /ops/crew-readiness-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Evaluates support-ops crews across scenario fixtures for process-mode coverage, role delegation, review gates, sandbox transcripts, and zero external calls.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -207,6 +214,7 @@ REVIEWER_PURPOSES = {
     "data/support_ops_sandbox": EXTRA_ARTIFACTS[13]["reviewer_purpose"],
     "data/tool_governance_packs": EXTRA_ARTIFACTS[14]["reviewer_purpose"],
     "data/renewal_control_packs": EXTRA_ARTIFACTS[15]["reviewer_purpose"],
+    "data/support_ops_readiness": EXTRA_ARTIFACTS[19]["reviewer_purpose"],
 }
 
 

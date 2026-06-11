@@ -59,6 +59,11 @@ VERIFY_COMMANDS = [
         r"app dashboard docs README.md tests scripts"
     ),
     (
+        r'rg "ops/crew-readiness-drill|ops/crew-readiness-pack|Support Ops Readiness|'
+        r'support_ops_readiness|process-mode coverage|crew readiness" '
+        r"app dashboard docs README.md tests scripts"
+    ),
+    (
         r'rg "tools/registry|tools/governance-pack|Tool Governance|tool_governance_packs|'
         r'tool manifest|tool registry" app dashboard docs README.md tests scripts'
     ),
@@ -116,6 +121,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /ops/crew-pack",
     "GET /ops/crew-sandbox",
     "POST /ops/crew-sandbox-pack",
+    "GET /ops/crew-readiness-drill",
+    "POST /ops/crew-readiness-pack",
     "GET /tools/registry",
     "POST /tools/governance-pack",
     "GET /ops/daily-brief",
@@ -398,6 +405,8 @@ class ApiContractService:
             "POST /governance/autonomy-pack",
             "GET /workflows/durability-audit",
             "POST /workflows/durability-pack",
+            "GET /ops/crew-readiness-drill",
+            "POST /ops/crew-readiness-pack",
             "GET /tools/registry",
             "POST /tools/governance-pack",
         ]

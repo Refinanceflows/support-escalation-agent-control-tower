@@ -101,6 +101,12 @@ These analytics endpoints do not call Azure, Zendesk, Jira, Slack, or any extern
 
 `POST /ops/crew-sandbox-pack` writes Markdown and JSON under `data/support_ops_sandbox/`. The pack is reviewer evidence for task-sandbox, worker scale-out, run-transparency, review-gate, and tool-transcript patterns. It remains local/mock only: no external LLM, Zendesk, Jira, Slack, GitHub, browser, shell worker, or network provider is invoked, and no customer or engineering action is dispatched.
 
+## Support Ops Crew Readiness
+
+`GET /ops/crew-readiness-drill` evaluates the support-ops crew planner and worker sandbox across deterministic scenario fixtures. It verifies process-mode coverage, role delegation coverage, review-gate health, task-sandbox transcript coverage, and zero external calls.
+
+`POST /ops/crew-readiness-pack` writes Markdown and JSON under `data/support_ops_readiness/`. The pack packages scenario results, the role coverage matrix, process-mode coverage, readiness gates, sandbox transcript audit, proof commands, and limitations. It borrows role-crew, task-delegation, process-mode, review-gate, task-sandbox, and run-transparency patterns while staying local/mock only.
+
 ## Runbook QA and Operator Readiness Pack
 
 `POST /ops/runbook-qa` evaluates whether a run is complete enough for operator handoff. It checks ticket summary, classification, SLA risk, customer impact, KB citations/context, drafted reply, engineering escalation, approval state, trace ID, outbox dispatches, failure drill result, remediation owners, SLO budget, optimization recommendations, and customer/account health.

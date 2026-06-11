@@ -67,8 +67,8 @@ class SupportOpsSandboxService:
         self.audit = audit
         self.sandbox_dir = sandbox_dir
 
-    async def sandbox_run(self, run_id: str | None = None) -> dict[str, Any]:
-        plan = await self.support_ops.crew_plan(run_id)
+    async def sandbox_run(self, run_id: str | None = None, include_scenario_coverage: bool = True) -> dict[str, Any]:
+        plan = await self.support_ops.crew_plan(run_id, include_scenario_coverage=include_scenario_coverage)
         task_runs = [self._execute_task(plan, task, index) for index, task in enumerate(plan["delegated_tasks"], 1)]
         gates = self._verification_gates(plan, task_runs)
         score = self._score(gates, task_runs)

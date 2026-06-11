@@ -311,6 +311,20 @@ def run_with_http_server() -> dict | None:
         )
         support_ops_sandbox_pack_response.raise_for_status()
         result["support_ops_sandbox_pack"] = support_ops_sandbox_pack_response.json()
+        support_ops_readiness_response = requests.get(
+            f"{BASE}/ops/crew-readiness-drill",
+            headers=headers,
+            timeout=60,
+        )
+        support_ops_readiness_response.raise_for_status()
+        result["support_ops_readiness"] = support_ops_readiness_response.json()
+        support_ops_readiness_pack_response = requests.post(
+            f"{BASE}/ops/crew-readiness-pack",
+            headers=headers,
+            timeout=60,
+        )
+        support_ops_readiness_pack_response.raise_for_status()
+        result["support_ops_readiness_pack"] = support_ops_readiness_pack_response.json()
         tool_registry_response = requests.get(
             f"{BASE}/tools/registry",
             headers=headers,
@@ -742,6 +756,15 @@ def run_in_process() -> dict:
         support_ops_sandbox_pack_response = client.post("/ops/crew-sandbox-pack", headers={"x-api-key": token})
         support_ops_sandbox_pack_response.raise_for_status()
         result["support_ops_sandbox_pack"] = support_ops_sandbox_pack_response.json()
+        support_ops_readiness_response = client.get("/ops/crew-readiness-drill", headers={"x-api-key": token})
+        support_ops_readiness_response.raise_for_status()
+        result["support_ops_readiness"] = support_ops_readiness_response.json()
+        support_ops_readiness_pack_response = client.post(
+            "/ops/crew-readiness-pack",
+            headers={"x-api-key": token},
+        )
+        support_ops_readiness_pack_response.raise_for_status()
+        result["support_ops_readiness_pack"] = support_ops_readiness_pack_response.json()
         tool_registry_response = client.get("/tools/registry", headers={"x-api-key": token})
         tool_registry_response.raise_for_status()
         result["tool_registry"] = tool_registry_response.json()
@@ -915,6 +938,8 @@ def main():
     support_ops_pack = result["support_ops_pack"]
     support_ops_sandbox = result["support_ops_sandbox"]
     support_ops_sandbox_pack = result["support_ops_sandbox_pack"]
+    support_ops_readiness = result["support_ops_readiness"]
+    support_ops_readiness_pack = result["support_ops_readiness_pack"]
     tool_registry = result["tool_registry"]
     tool_governance_pack = result["tool_governance_pack"]
     git_readiness = result["git_readiness"]
@@ -1097,6 +1122,15 @@ def main():
     )
     print("Support Ops Sandbox Pack:", support_ops_sandbox_pack["markdown_path"])
     print("Support Ops Sandbox JSON:", support_ops_sandbox_pack["json_path"])
+    print(
+        "Support Ops Readiness:",
+        support_ops_readiness["readiness_status"],
+        f"score={support_ops_readiness['readiness_score']}",
+        f"modes={support_ops_readiness['summary']['process_mode_count']}",
+        f"external={support_ops_readiness['summary']['external_call_count']}",
+    )
+    print("Support Ops Readiness Pack:", support_ops_readiness_pack["markdown_path"])
+    print("Support Ops Readiness JSON:", support_ops_readiness_pack["json_path"])
     print(
         "Tool Governance:",
         tool_registry["readiness_status"],

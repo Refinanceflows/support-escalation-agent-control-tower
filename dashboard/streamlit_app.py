@@ -83,6 +83,7 @@ tabs = st.tabs(
         "Communication Quality",
         "Support Ops Crews",
         "Support Ops Sandbox",
+        "Support Ops Readiness",
         "Tool Governance",
     ]
 )
@@ -3253,6 +3254,70 @@ with tabs[50]:
             st.json(pack["pack"])
 
 with tabs[51]:
+    left, right = st.columns(2)
+    if left.button("Refresh Crew Readiness", type="primary", use_container_width=True):
+        drill = api("GET", "/ops/crew-readiness-drill")
+        st.session_state["support_ops_readiness_drill"] = drill
+    if right.button("Export Crew Readiness Pack", use_container_width=True):
+        pack = api("POST", "/ops/crew-readiness-pack")
+        st.session_state["support_ops_readiness_pack"] = pack
+        st.session_state["support_ops_readiness_drill"] = pack["pack"]["readiness_drill"]
+        st.success(f"Support Ops Readiness Pack exported: {pack['markdown_path']}")
+
+    drill = st.session_state.get("support_ops_readiness_drill") or api("GET", "/ops/crew-readiness-drill")
+    st.session_state["support_ops_readiness_drill"] = drill
+    summary = drill["summary"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Readiness score", drill["readiness_score"])
+    c2.metric("Status", drill["readiness_status"])
+    c3.metric("Process modes", summary["process_mode_count"])
+    c4.metric("External calls", summary["external_call_count"])
+
+    st.subheader("Scenario Results")
+    st.dataframe(
+        [
+            {
+                "scenario": row["scenario_id"],
+                "domain": row["domain"],
+                "expected": row["expected_process_mode"],
+                "actual": row["actual_process_mode"],
+                "mode match": row["process_mode_match"],
+                "sandbox": row["sandbox_status"],
+                "missing roles": ", ".join(row["missing_roles"]),
+            }
+            for row in drill["scenario_results"]
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.subheader("Readiness Gates")
+    st.dataframe(drill["readiness_gates"], use_container_width=True, hide_index=True)
+
+    st.subheader("Role Coverage Matrix")
+    st.dataframe(drill["role_coverage_matrix"], use_container_width=True, hide_index=True)
+
+    st.subheader("Process-Mode Coverage")
+    st.json(drill["process_mode_coverage"])
+
+    st.subheader("Sandbox Transcript Audit")
+    st.json(drill["sandbox_transcript_audit"])
+
+    pack = st.session_state.get("support_ops_readiness_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Support Ops Readiness Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(pack["markdown"])
+        with st.expander("Support Ops Readiness Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[52]:
     left, right = st.columns(2)
     if left.button("Refresh Tool Governance", type="primary", use_container_width=True):
         st.session_state["tool_governance_registry"] = api("GET", "/tools/registry")

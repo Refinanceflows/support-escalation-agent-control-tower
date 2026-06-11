@@ -49,6 +49,7 @@ from app.services.runbook_qa import RunbookQaService
 from app.services.runtime_demo import RuntimeDemoService
 from app.services.scenarios import ScenarioCatalogService
 from app.services.support_ops import SupportOperationsService
+from app.services.support_ops_readiness import SupportOpsReadinessService
 from app.services.support_ops_sandbox import SupportOpsSandboxService
 from app.services.tickets import TicketService
 from app.services.tool_governance import ToolGovernanceService
@@ -408,6 +409,15 @@ class ServiceContainer:
             self.support_ops,
             self.audit,
             settings.state_file.parent / "support_ops_sandbox",
+        )
+        self.support_ops_readiness = SupportOpsReadinessService(
+            self.tickets,
+            self.workflow,
+            self.support_ops,
+            self.support_ops_sandbox,
+            self.audit,
+            Path("sample_data/scenarios.json"),
+            settings.state_file.parent / "support_ops_readiness",
         )
         self.tool_governance = ToolGovernanceService(
             self.store,

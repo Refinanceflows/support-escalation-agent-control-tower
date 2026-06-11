@@ -103,7 +103,7 @@ class SupportOperationsService:
         self.scenario_fixture = scenario_fixture
         self.support_ops_dir = support_ops_dir
 
-    async def crew_plan(self, run_id: str | None = None) -> dict[str, Any]:
+    async def crew_plan(self, run_id: str | None = None, include_scenario_coverage: bool = True) -> dict[str, Any]:
         run, ticket, source = await self._resolve_run(run_id)
         process_mode = self._select_process_mode(run, ticket)
         delegated_tasks = self._delegated_tasks(run, ticket, process_mode)
@@ -130,7 +130,7 @@ class SupportOperationsService:
             "artifact_handoffs": artifact_handoffs,
             "run_transparency": self._run_transparency(run),
             "handoff_sequence": self._handoff_sequence(process_mode, delegated_tasks),
-            "scenario_coverage": await self._scenario_coverage(),
+            "scenario_coverage": await self._scenario_coverage() if include_scenario_coverage else self._skipped_coverage(),
             "repo_radar_patterns": [
                 "role crews",
                 "task delegation",
@@ -264,6 +264,15 @@ class SupportOperationsService:
             "scenarios": rows,
         }
 
+    def _skipped_coverage(self) -> dict[str, Any]:
+        return {
+            "coverage_status": "skipped_for_parent_drill",
+            "scenario_count": 0,
+            "process_modes": {},
+            "domains": {},
+            "scenarios": [],
+        }
+
     def _select_process_mode(self, run: RunRecord, ticket: Ticket) -> dict[str, Any]:
         classification = run.state.get("classification", {})
         sla = run.state.get("sla_risk", {})
@@ -271,7 +280,9 @@ class SupportOperationsService:
         category = str(classification.get("category", "")).lower()
         if sla.get("level") == "high" or ticket.priority in {"urgent", "high"}:
             mode_id = "sla_war_room"
-        elif category in {"bug", "api", "webhook", "outage"} or sla.get("should_escalate"):
+        elif category in {"api_integrations", "authentication", "bug", "api", "webhook", "outage"} or sla.get(
+            "should_escalate"
+        ):
             mode_id = "engineering_escalation"
         elif qa.get("confidence", 1.0) < 0.65:
             mode_id = "customer_comms_review"
@@ -306,20 +317,20 @@ class SupportOperationsService:
                 [ticket.customer_tier, run.run_id],
             ),
             self._task(
-                "kb_evidence_packet",
-                "support_lead_crew",
-                "Attach cited KB snippets and any retrieval gaps to the reviewer packet.",
-                "knowledge_retrieval",
-                bool(state.get("kb_results")),
-                [item.get("article_id", "") for item in state.get("kb_results", [])[:3]],
-            ),
-            self._task(
                 "approval_gate_packet",
                 "operations_commander_crew",
                 "Prepare approval, guardrail, trace, and outbox state for human review.",
                 "review_gate",
                 bool(state.get("approval_id")),
                 [state.get("approval_id", "missing_approval"), state.get("approval_status", "unknown")],
+            ),
+            self._task(
+                "kb_evidence_packet",
+                "support_lead_crew",
+                "Attach cited KB snippets and any retrieval gaps to the reviewer packet.",
+                "knowledge_retrieval",
+                bool(state.get("kb_results")),
+                [item.get("article_id", "") for item in state.get("kb_results", [])[:3]],
             ),
         ]
         if process_mode["requires_engineering_owner"] or state.get("drafts", {}).get("engineering_escalation"):

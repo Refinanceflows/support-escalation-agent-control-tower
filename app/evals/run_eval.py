@@ -65,6 +65,8 @@ async def run_eval() -> None:
     escalation_quality_pack = await container.escalation_quality.export_quality_pack()
     support_ops_sandbox = await container.support_ops_sandbox.sandbox_run()
     support_ops_sandbox_pack = await container.support_ops_sandbox.export_sandbox_pack()
+    support_ops_readiness = await container.support_ops_readiness.readiness_drill()
+    support_ops_readiness_pack = await container.support_ops_readiness.export_readiness_pack()
     passed = (
         correct_classification == total
         and correct_routing == total
@@ -87,6 +89,9 @@ async def run_eval() -> None:
             for task_run in support_ops_sandbox["task_runs"]
             for event in task_run["transcript"]
         )
+        and support_ops_readiness["readiness_score"] >= 90
+        and support_ops_readiness["process_mode_coverage"]["coverage_status"] == "pass"
+        and support_ops_readiness["summary"]["external_call_count"] == 0
     )
 
     print(f"Number of eval tickets: {total}")
@@ -132,6 +137,10 @@ async def run_eval() -> None:
     print(f"Support Ops Sandbox status: {support_ops_sandbox['benchmark_discipline']['status']}")
     print(f"Support Ops Sandbox score: {support_ops_sandbox['benchmark_discipline']['score']}")
     print(f"Support Ops Sandbox Pack: {support_ops_sandbox_pack['markdown_path']}")
+    print(f"Support Ops Readiness status: {support_ops_readiness['readiness_status']}")
+    print(f"Support Ops Readiness score: {support_ops_readiness['readiness_score']}")
+    print(f"Support Ops Readiness modes: {support_ops_readiness['process_mode_coverage']['actual_modes']}")
+    print(f"Support Ops Readiness Pack: {support_ops_readiness_pack['markdown_path']}")
     print(f"Pass/fail summary: {'PASS' if passed else 'FAIL'}")
     if not passed:
         raise SystemExit(1)
