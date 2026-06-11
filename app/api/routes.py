@@ -227,6 +227,22 @@ async def rca_pack(request: Request, payload: IncidentNarrativeRequest | None = 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
 
 
+@router.get("/incidents/postmortem-review-board", dependencies=[Depends(require_api_key)])
+async def postmortem_review_board(request: Request, run_id: str | None = None):
+    try:
+        return await get_container(request).postmortem_review.review_board(run_id)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
+@router.post("/incidents/postmortem-review-pack", dependencies=[Depends(require_api_key)])
+async def postmortem_review_pack(request: Request, payload: IncidentNarrativeRequest | None = None):
+    try:
+        return await get_container(request).postmortem_review.export_review_pack(payload.run_id if payload else None)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
 @router.post("/finance/impact-summary", dependencies=[Depends(require_api_key)])
 async def finance_impact_summary(request: Request, payload: FinanceImpactRequest | None = None):
     try:

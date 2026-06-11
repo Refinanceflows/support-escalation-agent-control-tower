@@ -147,6 +147,12 @@ EXPECTED_ARTIFACTS = [
         "formats": ["markdown", "json"],
     },
     {
+        "name": "Postmortem Corrective Action Review Pack",
+        "directory": "data/postmortem_review_packs",
+        "producer": "POST /incidents/postmortem-review-pack",
+        "formats": ["markdown", "json"],
+    },
+    {
         "name": "Evidence Retention and Chain-of-Custody Pack",
         "directory": "data/evidence_packs",
         "producer": "POST /evidence/retention-pack",
@@ -381,6 +387,8 @@ class LaunchChecklistService:
             self._row("POST", "/communications/quality-pack", True, "Writes the Customer Communication Quality Pack.", True, "data/communication_quality_packs"),
             self._row("GET", "/incidents/postmortem-summary", True, "Returns Postmortem RCA summary and corrective action status.", False),
             self._row("POST", "/incidents/rca-pack", True, "Writes Postmortem RCA + Corrective Action proof.", True, "data/rca_packs"),
+            self._row("GET", "/incidents/postmortem-review-board", True, "Returns postmortem corrective-action review board and closure gates.", False),
+            self._row("POST", "/incidents/postmortem-review-pack", True, "Writes Postmortem Corrective Action Review proof.", True, "data/postmortem_review_packs"),
             self._row("GET", "/git/readiness", True, "Returns local git push readiness and branch hygiene checks.", False),
             self._row("POST", "/git/push-plan", True, "Writes the GitHub Push Readiness + Branch Hygiene Pack.", True, "data/git_packs"),
             self._row("GET", "/api/contract-audit", True, "Returns OpenAPI-derived API contract checks.", False),

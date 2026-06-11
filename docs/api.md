@@ -66,6 +66,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /incidents/rca-pack`
   Writes Markdown and JSON under the ignored RCA folder, normally `data/rca_packs/`. The optional body can include `run_id`; otherwise it uses the latest/sample fallback. The pack includes a postmortem narrative, timeline, trace/audit evidence, action owners, due dates, recurrence risk, customer follow-up state, deterministic RCA coverage across outage/API, tool failure/retry, privacy/data export, billing/customer risk, and low-confidence human-review scenarios, proof commands, and limitations.
 
+- `GET /incidents/postmortem-review-board`
+  Returns the Postmortem Review Board for a supplied, latest, or deterministic sample run. The response includes corrective-action lanes, owner signoffs, role playbooks, closure gates, review cadence, run transparency, artifact handoffs, and local proof commands.
+
+- `POST /incidents/postmortem-review-pack`
+  Writes Markdown and JSON under the ignored review folder, normally `data/postmortem_review_packs/`. The optional body can include `run_id`; otherwise it uses the latest/sample fallback. The pack includes closure owner summary, review-gate summary, artifact handoff packet, proof commands, and limitations.
+
 - `POST /finance/impact-summary`
   Returns local deterministic finance impact estimates for a supplied `run_id`, the latest local run, or a deterministic sample fallback when omitted. The response includes ticket/customer context, support cost, SLA penalty exposure, engineering effort, customer ARR at risk, finance rollup, risk flags, recommended actions, dashboard metrics, assumptions, local commands, and limitations. It does not call CRM, billing, finance, Azure, OpenAI, Zendesk, Jira, Slack, or external systems.
 

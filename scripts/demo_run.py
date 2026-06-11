@@ -380,6 +380,20 @@ def run_with_http_server() -> dict | None:
         )
         rca_pack_response.raise_for_status()
         result["rca_pack"] = rca_pack_response.json()
+        postmortem_review_response = requests.get(
+            f"{BASE}/incidents/postmortem-review-board",
+            headers=headers,
+            timeout=60,
+        )
+        postmortem_review_response.raise_for_status()
+        result["postmortem_review_board"] = postmortem_review_response.json()
+        postmortem_review_pack_response = requests.post(
+            f"{BASE}/incidents/postmortem-review-pack",
+            headers=headers,
+            timeout=60,
+        )
+        postmortem_review_pack_response.raise_for_status()
+        result["postmortem_review_pack"] = postmortem_review_pack_response.json()
         finance_summary_response = requests.post(
             f"{BASE}/finance/impact-summary",
             headers=headers,
@@ -741,6 +755,18 @@ def run_in_process() -> dict:
         rca_pack_response = client.post("/incidents/rca-pack", headers={"x-api-key": token})
         rca_pack_response.raise_for_status()
         result["rca_pack"] = rca_pack_response.json()
+        postmortem_review_response = client.get(
+            "/incidents/postmortem-review-board",
+            headers={"x-api-key": token},
+        )
+        postmortem_review_response.raise_for_status()
+        result["postmortem_review_board"] = postmortem_review_response.json()
+        postmortem_review_pack_response = client.post(
+            "/incidents/postmortem-review-pack",
+            headers={"x-api-key": token},
+        )
+        postmortem_review_pack_response.raise_for_status()
+        result["postmortem_review_pack"] = postmortem_review_pack_response.json()
         finance_summary_response = client.post(
             "/finance/impact-summary",
             headers={"x-api-key": token},
@@ -876,6 +902,8 @@ def main():
     scenario_eval_pack = result["scenario_eval_pack"]
     postmortem_rca = result["postmortem_rca"]
     rca_pack = result["rca_pack"]
+    postmortem_review_board = result["postmortem_review_board"]
+    postmortem_review_pack = result["postmortem_review_pack"]
     finance_summary = result["finance_impact_summary"]
     finance_pack = result["finance_impact_pack"]
     evidence_audit = result["evidence_retention_audit"]
@@ -1087,6 +1115,14 @@ def main():
     )
     print("RCA Pack:", rca_pack["markdown_path"])
     print("RCA Pack JSON:", rca_pack["json_path"])
+    print(
+        "Postmortem Review Board:",
+        postmortem_review_board["review_status"],
+        f"closure_score={postmortem_review_board['closure_score']}",
+        f"actions={len(postmortem_review_board['action_board'])}",
+    )
+    print("Postmortem Review Pack:", postmortem_review_pack["markdown_path"])
+    print("Postmortem Review JSON:", postmortem_review_pack["json_path"])
     print(
         "Finance impact:",
         finance_summary["finance_rollup"]["readiness_status"],

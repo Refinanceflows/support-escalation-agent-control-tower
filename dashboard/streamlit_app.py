@@ -2179,6 +2179,14 @@ with tabs[35]:
         st.session_state["rca_pack"] = pack
         st.session_state["postmortem_rca"] = pack["pack"]["postmortem_summary"]
         st.success(f"RCA Pack exported: {pack['markdown_path']}")
+    review_left, review_right = st.columns(2)
+    if review_left.button("Refresh Postmortem Review Board", type="secondary", use_container_width=True):
+        st.session_state["postmortem_review_board"] = api("GET", "/incidents/postmortem-review-board")
+    if review_right.button("Export Postmortem Review Pack", use_container_width=True):
+        pack = api("POST", "/incidents/postmortem-review-pack")
+        st.session_state["postmortem_review_pack"] = pack
+        st.session_state["postmortem_review_board"] = pack["pack"]["review_board"]
+        st.success(f"Postmortem Review Pack exported: {pack['markdown_path']}")
 
     summary = st.session_state.get("postmortem_rca") or api("GET", "/incidents/postmortem-summary")
     st.session_state["postmortem_rca"] = summary
@@ -2212,6 +2220,25 @@ with tabs[35]:
     for command in summary["local_proof_commands"]:
         st.code(command)
 
+    st.subheader("Postmortem Review Board")
+    review_board = st.session_state.get("postmortem_review_board") or api(
+        "GET",
+        "/incidents/postmortem-review-board",
+    )
+    st.session_state["postmortem_review_board"] = review_board
+    r1, r2, r3, r4 = st.columns(4)
+    r1.metric("Review status", review_board["review_status"])
+    r2.metric("Closure score", review_board["closure_score"])
+    r3.metric("Process mode", review_board["process_mode"]["mode_id"])
+    r4.metric("Signoffs", len(review_board["role_signoffs"]))
+    st.dataframe(review_board["action_board"], use_container_width=True, hide_index=True)
+    st.subheader("Closure Gates")
+    st.dataframe(review_board["closure_gates"], use_container_width=True, hide_index=True)
+    st.subheader("Role Signoffs")
+    st.dataframe(review_board["role_signoffs"], use_container_width=True, hide_index=True)
+    st.subheader("Artifact Handoffs")
+    st.dataframe(review_board["artifact_handoffs"], use_container_width=True, hide_index=True)
+
     pack = st.session_state.get("rca_pack")
     if pack:
         st.caption(f"Markdown: {pack['markdown_path']}")
@@ -2225,6 +2252,20 @@ with tabs[35]:
         st.markdown(pack["markdown"])
         with st.expander("RCA Pack JSON"):
             st.json(pack["pack"])
+
+    review_pack = st.session_state.get("postmortem_review_pack")
+    if review_pack:
+        st.caption(f"Review Markdown: {review_pack['markdown_path']}")
+        st.caption(f"Review JSON: {review_pack['json_path']}")
+        st.download_button(
+            "Download Postmortem Review Pack",
+            data=review_pack["markdown"],
+            file_name=f"{review_pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(review_pack["markdown"])
+        with st.expander("Postmortem Review Pack JSON"):
+            st.json(review_pack["pack"])
 
 with tabs[36]:
     run_id = st.text_input("Finance run ID", value=st.session_state.get("run_id", ""))

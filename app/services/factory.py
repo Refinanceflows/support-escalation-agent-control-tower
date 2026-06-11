@@ -36,6 +36,7 @@ from app.services.policy_change_simulation import PolicyChangeSimulationService
 from app.services.policy_guardrails import PolicyGuardrailService
 from app.services.policy_rollout import PolicyRolloutService
 from app.services.postmortem_rca import PostmortemRcaService
+from app.services.postmortem_review import PostmortemReviewService
 from app.services.portfolio import PortfolioService
 from app.services.provider_readiness import ProviderReadinessService
 from app.services.replay_lab import ReplayLabService
@@ -293,6 +294,11 @@ class ServiceContainer:
             self.oncall_handoff,
             Path("sample_data/scenarios.json"),
             settings.state_file.parent / "rca_packs",
+        )
+        self.postmortem_review = PostmortemReviewService(
+            self.postmortem_rca,
+            self.audit,
+            settings.state_file.parent / "postmortem_review_packs",
         )
         self.git_readiness = GitReadinessService(
             settings.state_file.parent / "git_packs",

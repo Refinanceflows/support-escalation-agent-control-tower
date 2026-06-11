@@ -197,6 +197,10 @@ Each workflow node now writes a checkpoint into the persisted run state with the
 
 `POST /incidents/rca-pack` writes Markdown and JSON under `data/rca_packs/`. The pack includes postmortem narrative, timeline, trace/audit evidence, corrective action owners, due dates, recurrence risk, customer follow-up state, proof commands, limitations, and deterministic RCA coverage for outage/API incident, tool failure/retry, privacy/data export, billing/customer risk, and low-confidence ambiguity needing human review.
 
+`GET /incidents/postmortem-review-board` turns the RCA corrective actions into a closure board. It assigns each action to a closure lane, delegated crew, role playbook, required artifact, owner signoff, and closure gate. It also exposes run transparency and review cadence so operators can see what remains before the postmortem can close.
+
+`POST /incidents/postmortem-review-pack` writes Markdown and JSON under `data/postmortem_review_packs/`. The pack includes the action board, closure owner summary, review-gate summary, artifact handoff packet, proof commands, and local/mock limitations. It borrows role-crew, task-delegation, role-playbook, review-gate, artifact-handoff, and run-transparency patterns while keeping live dispatch and external tools disabled.
+
 ## Escalation Finance Impact
 
 `POST /finance/impact-summary` estimates the business impact of a supplied, latest, or deterministic sample run. It uses local ticket/run state, trace volume, approval/outbox state, customer health, and `sample_data/customers.json` ARR metadata to calculate support cost, SLA penalty exposure, engineering effort, customer ARR at risk, direct cost, total exposure, risk flags, and owner actions.

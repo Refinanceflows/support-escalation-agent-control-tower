@@ -37,6 +37,11 @@ VERIFY_COMMANDS = [
         r'Corrective Action|rca_packs|root cause" app dashboard docs README.md tests scripts sample_data'
     ),
     (
+        r'rg "incidents/postmortem-review-board|incidents/postmortem-review-pack|'
+        r'Postmortem Review Board|postmortem_review_packs|closure gate" '
+        r"app dashboard docs README.md tests scripts"
+    ),
+    (
         r'rg "governance/autonomy-audit|governance/autonomy-pack|Autonomy Governance|'
         r'autonomy_governance_packs|tool trust|loop budget" app dashboard docs README.md tests scripts'
     ),
@@ -85,6 +90,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /handoff/customer-comms-pack",
     "GET /incidents/postmortem-summary",
     "POST /incidents/rca-pack",
+    "GET /incidents/postmortem-review-board",
+    "POST /incidents/postmortem-review-pack",
     "GET /git/readiness",
     "POST /git/push-plan",
     "GET /api/contract-audit",
@@ -385,6 +392,8 @@ class ApiContractService:
             "POST /handoff/customer-comms-pack",
             "GET /incidents/postmortem-summary",
             "POST /incidents/rca-pack",
+            "GET /incidents/postmortem-review-board",
+            "POST /incidents/postmortem-review-pack",
             "GET /governance/autonomy-audit",
             "POST /governance/autonomy-pack",
             "GET /workflows/durability-audit",

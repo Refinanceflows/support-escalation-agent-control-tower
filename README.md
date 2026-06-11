@@ -39,6 +39,7 @@ The default mode uses deterministic local/mock providers, so a fresh clone runs 
 - Agent Policy Simulation Pack export under `data/policy_change_packs/` with approval threshold, confidence cutoff, SLA routing, blast-radius, scenario delta, and rollout recommendation evidence
 - Customer Impact Timeline and Executive Incident Narrative export under `data/incident_narratives/`, connecting ticket intake, triage, approval, dispatch, policy, replay, SLO, account health, and owner next steps into one incident story
 - Postmortem RCA + Corrective Action Tracking Pack under `data/rca_packs/`, with root cause classification, contributing factors, corrective action owners, due dates, customer follow-up state, recurrence risk, trace/audit links, proof commands, and deterministic scenario coverage
+- Postmortem Review Board and Corrective Action Review Pack under `data/postmortem_review_packs/`, converting RCA actions into role-owned closure lanes, delegated crews, signoffs, closure gates, run transparency, and artifact handoffs
 - Escalation Finance Impact estimates for support cost, SLA penalty exposure, engineering effort, and customer ARR at risk, plus Markdown/JSON executive pack export under `data/finance_impact_packs/`
 - Leadership Scorecard for automation KPI review across safety, approvals, SLA risk, escalation quality, failures, policy blocks, replay risk, customer impact, and operator readiness
 - Leadership review pack export under `data/leadership_reviews/` with KPI definitions, evidence links, top risks, next actions, local commands, JD skills, and interviewer talking points
@@ -72,7 +73,7 @@ The default mode uses deterministic local/mock providers, so a fresh clone runs 
 - Tool Governance and Marketplace Trust Pack under `data/tool_governance_packs/`, auditing local tool manifests, owners, risk tiers, data exposure, HITL boundaries, failure modes, unknown tools, and tool intake gates
 - Local mock LLM provider behind an interface
 - API key auth, structured logs, request trace IDs, audit events, token/latency/cost metrics
-  - Streamlit dashboard for queue, approvals, trace timeline, outbox payloads, reliability drills, SLA simulation, incident briefs, incident narratives, Postmortem RCA, Finance Impact, Evidence Retention, Capacity Planning, Data Residency, Access Control, Risk Register, Provider Readiness, Executive Daily Ops Brief, Autonomy Governance, Durable Workflows, Support Ops Crews, Support Ops Sandbox, playbooks/remediation, customer health/account briefs, ops analytics, SLO optimization, Replay Lab, Policy Guardrails, Policy Change Simulation, Policy Rollout Review Gate, Operator QA / Readiness Pack, Leadership Scorecard, Knowledge Quality, Runbook Coverage, Portfolio Pack, Release Pack, CI Doctor / Audit Pack, Reviewer Quickstart, Artifact Inventory, UI Verification, Final Handoff, On-Call Handoff, Git Readiness, API Contract, Runtime Demo, Scenario Dataset, and metrics
+  - Streamlit dashboard for queue, approvals, trace timeline, outbox payloads, reliability drills, SLA simulation, incident briefs, incident narratives, Postmortem RCA, Postmortem Review Board, Finance Impact, Evidence Retention, Capacity Planning, Data Residency, Access Control, Risk Register, Provider Readiness, Executive Daily Ops Brief, Autonomy Governance, Durable Workflows, Support Ops Crews, Support Ops Sandbox, playbooks/remediation, customer health/account briefs, ops analytics, SLO optimization, Replay Lab, Policy Guardrails, Policy Change Simulation, Policy Rollout Review Gate, Operator QA / Readiness Pack, Leadership Scorecard, Knowledge Quality, Runbook Coverage, Portfolio Pack, Release Pack, CI Doctor / Audit Pack, Reviewer Quickstart, Artifact Inventory, UI Verification, Final Handoff, On-Call Handoff, Git Readiness, API Contract, Runtime Demo, Scenario Dataset, and metrics
 - Sample tickets, scenario catalog, playbooks, and KB fixtures
 - Docker Compose, GitHub Actions CI, `.env.example`, Makefile, pytest suite
 
@@ -198,8 +199,10 @@ The command calls `POST /demo/evidence-pack`, `POST /ops/operator-readiness-pack
 26. Export `POST /incidents/executive-narrative` to write a Markdown/JSON executive incident story under `data/incident_narratives/`.
 27. Review `GET /incidents/postmortem-summary` for root cause, corrective actions, customer follow-up state, recurrence risk, trace links, and scenario coverage.
 28. Export `POST /incidents/rca-pack` to write the Postmortem RCA + Corrective Action Tracking Pack under `data/rca_packs/`.
-28a. Review `POST /finance/impact-summary` for local support cost, SLA penalty exposure, engineering effort, and customer ARR at risk.
-28b. Export `POST /finance/impact-pack` to write the Escalation Finance Impact Pack under `data/finance_impact_packs/`.
+28a. Review `GET /incidents/postmortem-review-board` for corrective-action owner lanes, role playbooks, delegated crews, closure gates, signoffs, run transparency, and artifact handoffs.
+28b. Export `POST /incidents/postmortem-review-pack` to write the Postmortem Corrective Action Review Pack under `data/postmortem_review_packs/`.
+28c. Review `POST /finance/impact-summary` for local support cost, SLA penalty exposure, engineering effort, and customer ARR at risk.
+28d. Export `POST /finance/impact-pack` to write the Escalation Finance Impact Pack under `data/finance_impact_packs/`.
 28c. Review `GET /governance/autonomy-audit` for autonomous loop budget, tool trust, HITL boundary, token/cost, and owner-action controls.
 28d. Export `POST /governance/autonomy-pack` to write the Autonomy Governance and Tool Trust Pack under `data/autonomy_governance_packs/`.
 28e. Review `GET /workflows/durability-audit` for persisted checkpoints, resume tokens, HITL recovery readiness, and operator recovery queues.
@@ -331,6 +334,8 @@ Important variables:
 - `POST /incidents/executive-narrative`: writes Markdown and JSON under `data/incident_narratives/` with executive summary, timeline, approval evidence, policy decision, replay risk, SLO posture, JD skills, and interviewer talking points.
 - `GET /incidents/postmortem-summary`: returns Postmortem RCA summary with severity, root cause category, contributing factors, approval/comms state, trace links, corrective actions, recurrence risk, customer follow-up state, readiness, and RCA scenario coverage.
 - `POST /incidents/rca-pack`: writes Markdown and JSON under `data/rca_packs/` with postmortem narrative, timeline, trace/audit evidence, action owners, due dates, recurrence risk, customer follow-up state, proof commands, and limitations.
+- `GET /incidents/postmortem-review-board`: returns a Postmortem Review Board with corrective-action lanes, owner signoffs, role playbooks, closure gates, review cadence, run transparency, and artifact handoffs.
+- `POST /incidents/postmortem-review-pack`: writes Markdown and JSON under `data/postmortem_review_packs/` with the action board, closure owner summary, review-gate summary, artifact handoff packet, proof commands, and limitations.
 - `POST /finance/impact-summary`: returns local deterministic finance impact estimates for a supplied, latest, or sample run, including support cost, SLA penalty exposure, engineering effort, ARR at risk, assumptions, limitations, risk flags, and recommended actions.
 - `POST /finance/impact-pack`: writes Markdown and JSON under `data/finance_impact_packs/` with the Escalation Finance Impact Pack, executive decision table, finance controls, local commands, and local-only limitations.
 - `GET /leadership/scorecard`: returns the local automation KPI scorecard with numeric category scores, trend-ish sample values, risk flags, recommended actions, artifact links, KPI definitions, and readiness status.

@@ -144,6 +144,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Turns policy simulation deltas into fail-closed rollout gates, role signoffs, canary phases, rollback triggers, and reviewer handoffs.",
     },
+    {
+        "name": "Postmortem Corrective Action Review Pack",
+        "directory": "data/postmortem_review_packs",
+        "producer": "POST /incidents/postmortem-review-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Aggregates RCA corrective actions into role-owned closure lanes, signoffs, review gates, run transparency, and artifact handoffs.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -158,6 +165,7 @@ REVIEWER_PURPOSES = {
     "data/policy_packs": "Policy guardrail proof for blocked/gated actions, approvals, and risk reasoning.",
     "data/policy_change_packs": "Policy-change simulation proof for approval thresholds, confidence cutoffs, SLA routing, and blast-radius scoring.",
     "data/policy_rollout_packs": EXTRA_ARTIFACTS[16]["reviewer_purpose"],
+    "data/postmortem_review_packs": EXTRA_ARTIFACTS[17]["reviewer_purpose"],
     "data/leadership_reviews": "Leadership-ready KPI and automation-readiness evidence.",
     "data/kb_refresh_plans": "Knowledge quality audit findings turned into owner-ready refresh work.",
     "data/incident_narratives": "Executive incident narrative and customer-impact timeline evidence.",

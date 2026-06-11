@@ -162,6 +162,18 @@ EXPECTED_ENDPOINTS = [
         "route_required": True,
     },
     {
+        "endpoint": "GET /incidents/postmortem-review-board",
+        "purpose": "Postmortem corrective-action review board with owner signoffs and closure gates.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /incidents/postmortem-review-pack",
+        "purpose": "Postmortem Corrective Action Review Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
         "endpoint": "POST /finance/impact-summary",
         "purpose": "Escalation Finance Impact estimate with support cost, SLA exposure, engineering effort, and ARR risk.",
         "dashboard_reference_required": True,
@@ -536,6 +548,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Postmortem RCA",
         "producer_endpoint": "POST /incidents/rca-pack",
         "artifact_directory": "data/rca_packs",
+    },
+    {
+        "tab_label": "Postmortem RCA",
+        "producer_endpoint": "POST /incidents/postmortem-review-pack",
+        "artifact_directory": "data/postmortem_review_packs",
     },
     {
         "tab_label": "Finance Impact",
@@ -983,6 +1000,11 @@ class UIVerificationService:
                 "view": "Postmortem RCA",
                 "placeholder": "screenshots/postmortem-rca-corrective-actions.png",
                 "what_to_capture": "Root cause, corrective action owners, recurrence risk, scenario coverage, and generated pack paths.",
+            },
+            {
+                "view": "Postmortem RCA",
+                "placeholder": "screenshots/postmortem-review-board-closure-gates.png",
+                "what_to_capture": "Postmortem review board, owner signoffs, closure gates, action priorities, and generated review pack paths.",
             },
             {
                 "view": "Finance Impact",
