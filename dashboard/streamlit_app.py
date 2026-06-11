@@ -79,6 +79,7 @@ tabs = st.tabs(
         "Executive Daily Ops Brief",
         "Autonomy Governance",
         "Durable Workflows",
+        "Escalation Quality",
         "Communication Quality",
         "Support Ops Crews",
         "Support Ops Sandbox",
@@ -2967,6 +2968,78 @@ with tabs[46]:
             st.json(pack["pack"])
 
 with tabs[47]:
+    run_id = st.text_input("Escalation quality run ID", value=st.session_state.get("run_id", ""))
+    quality_path = f"/escalations/quality-audit?run_id={run_id}" if run_id else "/escalations/quality-audit"
+    pack_path = f"/escalations/quality-pack?run_id={run_id}" if run_id else "/escalations/quality-pack"
+    left, right = st.columns(2)
+    if left.button("Refresh Escalation Quality", type="primary", use_container_width=True):
+        audit = api("GET", quality_path)
+        st.session_state["escalation_quality_audit"] = audit
+        st.session_state["run_id"] = audit["run_id"]
+    if right.button("Export Escalation Quality Pack", use_container_width=True):
+        pack = api("POST", pack_path)
+        st.session_state["escalation_quality_pack"] = pack
+        st.session_state["escalation_quality_audit"] = pack["pack"]["quality_audit"]
+        st.session_state["run_id"] = pack["pack"]["quality_audit"]["run_id"]
+        st.success(f"Escalation Quality Pack exported: {pack['markdown_path']}")
+
+    audit = st.session_state.get("escalation_quality_audit") or api("GET", quality_path)
+    st.session_state["escalation_quality_audit"] = audit
+    gate = audit["quality_gate"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Overall score", audit["overall_score"])
+    c2.metric("Status", audit["status"])
+    c3.metric("Internal dispatch", str(gate["approved_for_internal_dispatch"]))
+    c4.metric("Required", str(audit["escalation_required"]))
+
+    st.subheader("Score Dimensions")
+    st.dataframe(
+        [
+            {
+                "dimension": name,
+                "score": item["score"],
+                "status": item["status"],
+                "gaps": "; ".join(item["gaps"]),
+            }
+            for name, item in audit["score_dimensions"].items()
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.subheader("Engineering Review Crew")
+    st.dataframe(audit["role_playbook_handoffs"], use_container_width=True, hide_index=True)
+
+    st.subheader("Reviewer Actions")
+    st.dataframe(audit["required_revisions"], use_container_width=True, hide_index=True)
+
+    st.subheader("Escalation Evidence")
+    st.json(audit["escalation_evidence"])
+
+    st.subheader("Run Transparency")
+    st.json(audit["run_transparency"])
+
+    st.subheader("Artifact Handoffs")
+    st.dataframe(audit["artifact_handoffs"], use_container_width=True, hide_index=True)
+
+    st.subheader("Scenario Coverage")
+    st.dataframe(audit["scenario_coverage"]["scenarios"], use_container_width=True, hide_index=True)
+
+    pack = st.session_state.get("escalation_quality_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Escalation Quality Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(pack["markdown"])
+        with st.expander("Escalation Quality JSON"):
+            st.json(pack["pack"])
+
+with tabs[48]:
     run_id = st.text_input("Communication quality run ID", value=st.session_state.get("run_id", ""))
     quality_path = f"/communications/quality-audit?run_id={run_id}" if run_id else "/communications/quality-audit"
     pack_path = f"/communications/quality-pack?run_id={run_id}" if run_id else "/communications/quality-pack"
@@ -3035,7 +3108,7 @@ with tabs[47]:
         with st.expander("Communication Quality JSON"):
             st.json(pack["pack"])
 
-with tabs[48]:
+with tabs[49]:
     run_id = st.text_input("Support ops run ID", value=st.session_state.get("run_id", ""))
     plan_path = f"/ops/crew-plan?run_id={run_id}" if run_id else "/ops/crew-plan"
     pack_path = f"/ops/crew-pack?run_id={run_id}" if run_id else "/ops/crew-pack"
@@ -3105,7 +3178,7 @@ with tabs[48]:
         with st.expander("Support Ops Pack JSON"):
             st.json(pack["pack"])
 
-with tabs[49]:
+with tabs[50]:
     run_id = st.text_input("Sandbox run ID", value=st.session_state.get("run_id", ""))
     sandbox_path = f"/ops/crew-sandbox?run_id={run_id}" if run_id else "/ops/crew-sandbox"
     pack_path = f"/ops/crew-sandbox-pack?run_id={run_id}" if run_id else "/ops/crew-sandbox-pack"
@@ -3179,7 +3252,7 @@ with tabs[49]:
         with st.expander("Support Ops Sandbox Pack JSON"):
             st.json(pack["pack"])
 
-with tabs[50]:
+with tabs[51]:
     left, right = st.columns(2)
     if left.button("Refresh Tool Governance", type="primary", use_container_width=True):
         st.session_state["tool_governance_registry"] = api("GET", "/tools/registry")

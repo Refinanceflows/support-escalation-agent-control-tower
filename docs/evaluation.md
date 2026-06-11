@@ -626,6 +626,49 @@ rg "communications/quality-audit|communications/quality-pack|Communication Quali
 Get-ChildItem -Recurse -File data\communication_quality_packs -ErrorAction SilentlyContinue | Select-Object FullName,Length,LastWriteTime
 ```
 
+## Engineering Escalation Quality Eval
+
+Call the escalation quality audit:
+
+```powershell
+curl http://localhost:8000/escalations/quality-audit `
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- response title is `Engineering Escalation Quality Audit`
+- score dimensions include actionability, reproduction evidence, customer impact, routing governance, and noise control
+- review crew includes engineering triage, support evidence, customer impact, escalation governance, and noise-control reviewers
+- quality gate reports human-in-the-loop approval, governance policy, trace-backed handoff status, blockers, and dispatch readiness
+- run transparency includes node history, tool-call counts, approval ID, QA, SLA risk, and final action
+- scenario coverage includes escalation-required and no-escalation-required paths
+
+Export the reviewer artifact:
+
+```powershell
+curl -X POST http://localhost:8000/escalations/quality-pack `
+  -H "x-api-key: demo-control-tower-key"
+```
+
+Expected:
+
+- Markdown and JSON files are written under `data/escalation_quality_packs/`
+- Markdown includes Score Dimensions, Role Crew Review, Reviewer Actions, Scenario Coverage, Local Proof Commands, and Limitations
+- pack is local/mock only and does not create Jira issues, Slack alerts, or external dispatches
+
+Required local Escalation Quality verification command set:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m ruff check app tests dashboard scripts
+.\.venv\Scripts\python.exe -m app.evals.run_eval
+.\.venv\Scripts\python.exe scripts\dashboard_smoke.py
+.\.venv\Scripts\python.exe scripts\demo_run.py
+rg "escalations/quality-audit|escalations/quality-pack|Escalation Quality|escalation_quality_packs|actionability|noise control" app dashboard docs README.md tests scripts
+Get-ChildItem -Recurse -File data\escalation_quality_packs -ErrorAction SilentlyContinue | Select-Object FullName,Length,LastWriteTime
+```
+
 ## Autonomous Support Operations Eval
 
 Call the crew plan:

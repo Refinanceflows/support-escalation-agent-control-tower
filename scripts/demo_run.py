@@ -269,6 +269,20 @@ def run_with_http_server() -> dict | None:
         )
         communication_quality_pack_response.raise_for_status()
         result["communication_quality_pack"] = communication_quality_pack_response.json()
+        escalation_quality_response = requests.get(
+            f"{BASE}/escalations/quality-audit",
+            headers=headers,
+            timeout=60,
+        )
+        escalation_quality_response.raise_for_status()
+        result["escalation_quality_audit"] = escalation_quality_response.json()
+        escalation_quality_pack_response = requests.post(
+            f"{BASE}/escalations/quality-pack",
+            headers=headers,
+            timeout=60,
+        )
+        escalation_quality_pack_response.raise_for_status()
+        result["escalation_quality_pack"] = escalation_quality_pack_response.json()
         support_ops_response = requests.get(
             f"{BASE}/ops/crew-plan",
             headers=headers,
@@ -707,6 +721,15 @@ def run_in_process() -> dict:
         )
         communication_quality_pack_response.raise_for_status()
         result["communication_quality_pack"] = communication_quality_pack_response.json()
+        escalation_quality_response = client.get("/escalations/quality-audit", headers={"x-api-key": token})
+        escalation_quality_response.raise_for_status()
+        result["escalation_quality_audit"] = escalation_quality_response.json()
+        escalation_quality_pack_response = client.post(
+            "/escalations/quality-pack",
+            headers={"x-api-key": token},
+        )
+        escalation_quality_pack_response.raise_for_status()
+        result["escalation_quality_pack"] = escalation_quality_pack_response.json()
         support_ops_response = client.get("/ops/crew-plan", headers={"x-api-key": token})
         support_ops_response.raise_for_status()
         result["support_ops_crew_plan"] = support_ops_response.json()
@@ -886,6 +909,8 @@ def main():
     customer_comms_pack = result["customer_comms_pack"]
     communication_quality = result["communication_quality_audit"]
     communication_quality_pack = result["communication_quality_pack"]
+    escalation_quality = result["escalation_quality_audit"]
+    escalation_quality_pack = result["escalation_quality_pack"]
     support_ops_crew_plan = result["support_ops_crew_plan"]
     support_ops_pack = result["support_ops_pack"]
     support_ops_sandbox = result["support_ops_sandbox"]
@@ -1047,6 +1072,14 @@ def main():
     )
     print("Communication Quality Pack:", communication_quality_pack["markdown_path"])
     print("Communication Quality JSON:", communication_quality_pack["json_path"])
+    print(
+        "Escalation quality:",
+        escalation_quality["status"],
+        f"score={escalation_quality['overall_score']}",
+        f"required={escalation_quality['escalation_required']}",
+    )
+    print("Escalation Quality Pack:", escalation_quality_pack["markdown_path"])
+    print("Escalation Quality JSON:", escalation_quality_pack["json_path"])
     print(
         "Support Ops Crews:",
         support_ops_crew_plan["readiness_status"],

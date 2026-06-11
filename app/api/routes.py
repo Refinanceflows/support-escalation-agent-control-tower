@@ -498,6 +498,22 @@ async def communication_quality_pack(request: Request, run_id: str | None = None
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
 
 
+@router.get("/escalations/quality-audit", dependencies=[Depends(require_api_key)])
+async def escalation_quality_audit(request: Request, run_id: str | None = None):
+    try:
+        return await get_container(request).escalation_quality.quality_audit(run_id)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
+@router.post("/escalations/quality-pack", dependencies=[Depends(require_api_key)])
+async def escalation_quality_pack(request: Request, run_id: str | None = None):
+    try:
+        return await get_container(request).escalation_quality.export_quality_pack(run_id)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
 @router.get("/git/readiness", dependencies=[Depends(require_api_key)])
 async def git_readiness(request: Request):
     return await get_container(request).git_readiness.readiness()

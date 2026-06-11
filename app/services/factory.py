@@ -20,6 +20,7 @@ from app.services.daily_ops_brief import ExecutiveDailyOpsBriefService
 from app.services.demo import DemoService
 from app.services.drills import DrillService
 from app.services.evidence_retention import EvidenceRetentionService
+from app.services.escalation_quality import EscalationQualityService
 from app.services.final_handoff import FinalHandoffService
 from app.services.finance_impact import FinanceImpactService
 from app.services.git_readiness import GitReadinessService
@@ -283,6 +284,14 @@ class ServiceContainer:
             self.audit,
             Path("sample_data/scenarios.json"),
             settings.state_file.parent / "communication_quality_packs",
+        )
+        self.escalation_quality = EscalationQualityService(
+            self.store,
+            self.tickets,
+            self.workflow,
+            self.audit,
+            Path("sample_data/scenarios.json"),
+            settings.state_file.parent / "escalation_quality_packs",
         )
         self.postmortem_rca = PostmortemRcaService(
             self.store,

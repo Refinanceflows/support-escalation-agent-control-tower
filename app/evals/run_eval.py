@@ -61,6 +61,8 @@ async def run_eval() -> None:
     provider_pack = await container.provider_readiness.export_pack()
     communication_quality = await container.communication_quality.quality_audit()
     communication_quality_pack = await container.communication_quality.export_quality_pack()
+    escalation_quality = await container.escalation_quality.quality_audit()
+    escalation_quality_pack = await container.escalation_quality.export_quality_pack()
     support_ops_sandbox = await container.support_ops_sandbox.sandbox_run()
     support_ops_sandbox_pack = await container.support_ops_sandbox.export_sandbox_pack()
     passed = (
@@ -76,6 +78,8 @@ async def run_eval() -> None:
         and provider_readiness["summary"]["secrets_exposed"] is False
         and communication_quality["overall_score"] >= 60
         and communication_quality["scenario_coverage"]["coverage_status"] == "pass"
+        and escalation_quality["overall_score"] >= 60
+        and escalation_quality["scenario_coverage"]["coverage_status"] == "pass"
         and support_ops_sandbox["benchmark_discipline"]["score"] >= 90
         and support_ops_sandbox["benchmark_discipline"]["status"] == "pass"
         and all(
@@ -122,6 +126,9 @@ async def run_eval() -> None:
     print(f"Communication Quality status: {communication_quality['status']}")
     print(f"Communication Quality score: {communication_quality['overall_score']}")
     print(f"Communication Quality Pack: {communication_quality_pack['markdown_path']}")
+    print(f"Escalation Quality status: {escalation_quality['status']}")
+    print(f"Escalation Quality score: {escalation_quality['overall_score']}")
+    print(f"Escalation Quality Pack: {escalation_quality_pack['markdown_path']}")
     print(f"Support Ops Sandbox status: {support_ops_sandbox['benchmark_discipline']['status']}")
     print(f"Support Ops Sandbox score: {support_ops_sandbox['benchmark_discipline']['score']}")
     print(f"Support Ops Sandbox Pack: {support_ops_sandbox_pack['markdown_path']}")

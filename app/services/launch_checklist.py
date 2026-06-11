@@ -284,6 +284,12 @@ EXPECTED_ARTIFACTS = [
         "producer": "POST /communications/quality-pack",
         "formats": ["markdown", "json"],
     },
+    {
+        "name": "Engineering Escalation Quality Pack",
+        "directory": "data/escalation_quality_packs",
+        "producer": "POST /escalations/quality-pack",
+        "formats": ["markdown", "json"],
+    },
 ]
 
 
@@ -385,6 +391,8 @@ class LaunchChecklistService:
             self._row("POST", "/handoff/customer-comms-pack", True, "Writes Customer Communications proof.", True, "data/customer_comms_packs"),
             self._row("GET", "/communications/quality-audit", True, "Scores customer reply draft quality before approval.", False),
             self._row("POST", "/communications/quality-pack", True, "Writes the Customer Communication Quality Pack.", True, "data/communication_quality_packs"),
+            self._row("GET", "/escalations/quality-audit", True, "Scores engineering escalation quality before internal dispatch.", False),
+            self._row("POST", "/escalations/quality-pack", True, "Writes the Engineering Escalation Quality Pack.", True, "data/escalation_quality_packs"),
             self._row("GET", "/incidents/postmortem-summary", True, "Returns Postmortem RCA summary and corrective action status.", False),
             self._row("POST", "/incidents/rca-pack", True, "Writes Postmortem RCA + Corrective Action proof.", True, "data/rca_packs"),
             self._row("GET", "/incidents/postmortem-review-board", True, "Returns postmortem corrective-action review board and closure gates.", False),

@@ -64,6 +64,7 @@ EXPECTED_VIEWS = [
     "Executive Daily Ops Brief",
     "Autonomy Governance",
     "Durable Workflows",
+    "Escalation Quality",
     "Communication Quality",
     "Support Ops Crews",
     "Support Ops Sandbox",
@@ -272,6 +273,18 @@ EXPECTED_ENDPOINTS = [
     {
         "endpoint": "POST /communications/quality-pack",
         "purpose": "Customer Communication Quality Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "GET /escalations/quality-audit",
+        "purpose": "Engineering Escalation Quality audit for Jira-ready handoff drafts.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /escalations/quality-pack",
+        "purpose": "Engineering Escalation Quality Pack export.",
         "dashboard_reference_required": True,
         "route_required": True,
     },
@@ -623,6 +636,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Communication Quality",
         "producer_endpoint": "POST /communications/quality-pack",
         "artifact_directory": "data/communication_quality_packs",
+    },
+    {
+        "tab_label": "Escalation Quality",
+        "producer_endpoint": "POST /escalations/quality-pack",
+        "artifact_directory": "data/escalation_quality_packs",
     },
     {
         "tab_label": "Git Readiness",
@@ -1045,6 +1063,11 @@ class UIVerificationService:
                 "view": "Durable Workflows",
                 "placeholder": "screenshots/durable-workflows-recovery-queue.png",
                 "what_to_capture": "Durability score, checkpoint controls, resume tokens, recovery queue, and generated pack paths.",
+            },
+            {
+                "view": "Escalation Quality",
+                "placeholder": "screenshots/escalation-quality-review-gate.png",
+                "what_to_capture": "Engineering escalation gate, actionability score, reviewer actions, and generated pack paths.",
             },
             {
                 "view": "Tool Governance",

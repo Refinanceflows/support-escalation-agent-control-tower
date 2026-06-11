@@ -191,6 +191,12 @@ Each workflow node now writes a checkpoint into the persisted run state with the
 
 `POST /communications/quality-pack` writes Markdown and JSON under `data/communication_quality_packs/`. The pack is a reviewer artifact for support leads and engineering managers to inspect customer-facing draft quality, guardrail blockers, role-review findings, and trace-backed handoff evidence. It remains local/mock only and does not send customer communications.
 
+## Engineering Escalation Quality
+
+`GET /escalations/quality-audit` evaluates drafted engineering escalations before Jira or Slack-facing dispatch. It uses role-crew reviewers for actionability, reproduction evidence, customer impact, routing governance, and noise control; returns human-in-the-loop gate status, trace-backed handoffs, required revisions, and deterministic Scenario Dataset coverage.
+
+`POST /escalations/quality-pack` writes Markdown and JSON under `data/escalation_quality_packs/`. The pack is a reviewer artifact for support engineering leads to inspect whether an escalation is justified, grounded, and actionable before internal dispatch. It remains local/mock only and does not create Jira issues, Slack alerts, Azure/OpenAI calls, GitHub operations, or external service traffic.
+
 ## Postmortem RCA and Corrective Actions
 
 `GET /incidents/postmortem-summary` returns the latest or deterministic sample Postmortem RCA summary. It connects tickets, runs, traces, approvals, outbox/customer comms state, on-call handoff readiness, and Scenario Dataset coverage into incident summary, severity, timeline, root cause category, contributing factors, impacted customer/account, approval/comms status, trace links, corrective actions, recurrence risk, customer follow-up state, readiness, and proof commands.

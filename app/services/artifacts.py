@@ -151,6 +151,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Aggregates RCA corrective actions into role-owned closure lanes, signoffs, review gates, run transparency, and artifact handoffs.",
     },
+    {
+        "name": "Engineering Escalation Quality Pack",
+        "directory": "data/escalation_quality_packs",
+        "producer": "POST /escalations/quality-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Scores engineering escalation drafts for actionability, reproduction evidence, customer impact, routing governance, and noise control before internal dispatch.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -195,6 +202,7 @@ REVIEWER_PURPOSES = {
     "data/autonomy_governance_packs": EXTRA_ARTIFACTS[9]["reviewer_purpose"],
     "data/workflow_recovery_packs": EXTRA_ARTIFACTS[10]["reviewer_purpose"],
     "data/communication_quality_packs": EXTRA_ARTIFACTS[11]["reviewer_purpose"],
+    "data/escalation_quality_packs": EXTRA_ARTIFACTS[18]["reviewer_purpose"],
     "data/support_ops_packs": EXTRA_ARTIFACTS[12]["reviewer_purpose"],
     "data/support_ops_sandbox": EXTRA_ARTIFACTS[13]["reviewer_purpose"],
     "data/tool_governance_packs": EXTRA_ARTIFACTS[14]["reviewer_purpose"],
