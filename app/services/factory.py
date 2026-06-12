@@ -39,6 +39,7 @@ from app.services.policy_rollout import PolicyRolloutService
 from app.services.postmortem_rca import PostmortemRcaService
 from app.services.postmortem_review import PostmortemReviewService
 from app.services.portfolio import PortfolioService
+from app.services.provider_failover import ProviderFailoverService
 from app.services.provider_readiness import ProviderReadinessService
 from app.services.replay_lab import ReplayLabService
 from app.services.release import ReleaseService
@@ -367,6 +368,11 @@ class ServiceContainer:
             settings,
             self.audit,
             settings.state_file.parent / "provider_readiness_packs",
+        )
+        self.provider_failover = ProviderFailoverService(
+            self.provider_readiness,
+            self.audit,
+            settings.state_file.parent / "provider_failover_packs",
         )
         self.daily_ops_brief = ExecutiveDailyOpsBriefService(
             self.store,

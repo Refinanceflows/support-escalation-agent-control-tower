@@ -68,6 +68,10 @@ VERIFY_COMMANDS = [
         r'tool manifest|tool registry" app dashboard docs README.md tests scripts'
     ),
     (
+        r'rg "providers/failover-drill|providers/failover-pack|Provider Failover|'
+        r'provider_failover_packs|fallback drill|fail-closed" app dashboard docs README.md tests scripts'
+    ),
+    (
         r"Get-ChildItem -Recurse -File data\api_contracts -ErrorAction SilentlyContinue "
         r"| Select-Object FullName,Length,LastWriteTime"
     ),
@@ -113,6 +117,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /compliance/data-residency-pack",
     "GET /providers/readiness",
     "POST /providers/readiness-pack",
+    "GET /providers/failover-drill",
+    "POST /providers/failover-pack",
     "GET /governance/autonomy-audit",
     "POST /governance/autonomy-pack",
     "GET /workflows/durability-audit",
@@ -405,6 +411,8 @@ class ApiContractService:
             "POST /governance/autonomy-pack",
             "GET /workflows/durability-audit",
             "POST /workflows/durability-pack",
+            "GET /providers/failover-drill",
+            "POST /providers/failover-pack",
             "GET /ops/crew-readiness-drill",
             "POST /ops/crew-readiness-pack",
             "GET /tools/registry",

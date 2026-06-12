@@ -102,6 +102,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /providers/readiness-pack`
   Writes Markdown and JSON under the ignored provider readiness folder, normally `data/provider_readiness_packs/`. The pack includes provider checks, activation checklist, acceptance criteria, production backlog, local verification commands, JD skills demonstrated, interviewer talking points, and secret-redaction limitations.
 
+- `GET /providers/failover-drill`
+  Runs the Provider Failover drill without external calls. It exercises local/mock default behavior, OpenAI and Azure missing-credential fallback, simulated provider timeout fallback, and fallback-disabled fail-closed behavior. The response includes scenario results, control checks, token/cost visibility, activation decisions, repo-radar patterns, proof commands, and limitations.
+
+- `POST /providers/failover-pack`
+  Writes Markdown and JSON under the ignored provider failover folder, normally `data/provider_failover_packs/`. The pack includes the failover drill, deployment gate, acceptance criteria, local proof commands, and local-only limitations.
+
 - `GET /governance/autonomy-audit`
   Returns the Autonomy Governance audit for existing local runs. The response includes bounded workflow node checks, trusted tool allowlist status, retry budget visibility, human-approval-before-dispatch checks, token/cost observability, run-level findings, owner actions, repo-radar patterns, local commands, and local/mock limitations.
 

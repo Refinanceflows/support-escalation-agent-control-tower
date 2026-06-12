@@ -14,6 +14,8 @@ from app.services.audit import AuditService
 PROVIDER_ENDPOINTS = [
     "GET /providers/readiness",
     "POST /providers/readiness-pack",
+    "GET /providers/failover-drill",
+    "POST /providers/failover-pack",
     "GET /ops/ci-doctor",
     "GET /runtime/demo-readiness",
     "GET /security/access-matrix",

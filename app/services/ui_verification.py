@@ -434,6 +434,18 @@ EXPECTED_ENDPOINTS = [
         "route_required": True,
     },
     {
+        "endpoint": "GET /providers/failover-drill",
+        "purpose": "Provider failover drill for local fallback and fail-closed optional-provider behavior.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /providers/failover-pack",
+        "purpose": "Provider Failover and Fallback Drill Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
         "endpoint": "GET /governance/autonomy-audit",
         "purpose": "Autonomy Governance audit for loop budgets, tool trust, HITL boundaries, token/cost, and run findings.",
         "dashboard_reference_required": True,
@@ -554,6 +566,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Provider Readiness",
         "producer_endpoint": "POST /providers/readiness-pack",
         "artifact_directory": "data/provider_readiness_packs",
+    },
+    {
+        "tab_label": "Provider Readiness",
+        "producer_endpoint": "POST /providers/failover-pack",
+        "artifact_directory": "data/provider_failover_packs",
     },
     {
         "tab_label": "Customer Health / Account Brief",
@@ -1091,6 +1108,11 @@ class UIVerificationService:
                 "view": "Tool Governance",
                 "placeholder": "screenshots/tool-governance-registry.png",
                 "what_to_capture": "Tool governance score, manifest controls, approval matrix, unknown-tool queue, and generated pack paths.",
+            },
+            {
+                "view": "Provider Readiness",
+                "placeholder": "screenshots/provider-failover-drill.png",
+                "what_to_capture": "Failover score, fallback scenarios, fail-closed path, external-call count, and generated pack paths.",
             },
         ]
 

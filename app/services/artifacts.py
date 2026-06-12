@@ -165,6 +165,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Evaluates support-ops crews across scenario fixtures for process-mode coverage, role delegation, review gates, sandbox transcripts, and zero external calls.",
     },
+    {
+        "name": "Provider Failover and Fallback Drill Pack",
+        "directory": "data/provider_failover_packs",
+        "producer": "POST /providers/failover-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Proves optional OpenAI/Azure activation states fall back locally or fail closed without external calls, while preserving human approval and token/cost visibility.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -206,6 +213,7 @@ REVIEWER_PURPOSES = {
     "data/data_residency_packs": EXTRA_ARTIFACTS[6]["reviewer_purpose"],
     "data/access_review_packs": EXTRA_ARTIFACTS[7]["reviewer_purpose"],
     "data/provider_readiness_packs": EXTRA_ARTIFACTS[8]["reviewer_purpose"],
+    "data/provider_failover_packs": EXTRA_ARTIFACTS[-1]["reviewer_purpose"],
     "data/autonomy_governance_packs": EXTRA_ARTIFACTS[9]["reviewer_purpose"],
     "data/workflow_recovery_packs": EXTRA_ARTIFACTS[10]["reviewer_purpose"],
     "data/communication_quality_packs": EXTRA_ARTIFACTS[11]["reviewer_purpose"],

@@ -564,6 +564,16 @@ async def provider_readiness_pack(request: Request):
     return await get_container(request).provider_readiness.export_pack()
 
 
+@router.get("/providers/failover-drill", dependencies=[Depends(require_api_key)])
+async def provider_failover_drill(request: Request):
+    return await get_container(request).provider_failover.failover_drill()
+
+
+@router.post("/providers/failover-pack", dependencies=[Depends(require_api_key)])
+async def provider_failover_pack(request: Request):
+    return await get_container(request).provider_failover.export_pack()
+
+
 @router.get("/governance/autonomy-audit", dependencies=[Depends(require_api_key)])
 async def autonomy_governance_audit(request: Request):
     return await get_container(request).autonomy_governance.autonomy_audit()

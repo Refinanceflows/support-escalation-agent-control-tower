@@ -2755,14 +2755,21 @@ with tabs[42]:
             st.json(pack["pack"])
 
 with tabs[43]:
-    left, right = st.columns(2)
+    left, mid_left, mid_right, right = st.columns(4)
     if left.button("Refresh Provider Readiness", type="primary", use_container_width=True):
         st.session_state["provider_readiness"] = api("GET", "/providers/readiness")
-    if right.button("Export Provider Readiness Pack", use_container_width=True):
+    if mid_left.button("Export Provider Readiness Pack", use_container_width=True):
         pack = api("POST", "/providers/readiness-pack")
         st.session_state["provider_readiness_pack"] = pack
         st.session_state["provider_readiness"] = pack["pack"]["provider_readiness"]
         st.success(f"Provider Readiness Pack exported: {pack['markdown_path']}")
+    if mid_right.button("Run Failover Drill", use_container_width=True):
+        st.session_state["provider_failover_drill"] = api("GET", "/providers/failover-drill")
+    if right.button("Export Failover Pack", use_container_width=True):
+        pack = api("POST", "/providers/failover-pack")
+        st.session_state["provider_failover_pack"] = pack
+        st.session_state["provider_failover_drill"] = pack["pack"]["failover_drill"]
+        st.success(f"Provider Failover Pack exported: {pack['markdown_path']}")
 
     readiness = st.session_state.get("provider_readiness") or api("GET", "/providers/readiness")
     st.session_state["provider_readiness"] = readiness
@@ -2788,6 +2795,34 @@ with tabs[43]:
     st.subheader("Production Backlog")
     st.dataframe(readiness["production_backlog"], use_container_width=True, hide_index=True)
 
+    failover = st.session_state.get("provider_failover_drill") or api("GET", "/providers/failover-drill")
+    st.session_state["provider_failover_drill"] = failover
+    failover_summary = failover["summary"]
+    st.subheader("Provider Failover Drill")
+    f1, f2, f3, f4 = st.columns(4)
+    f1.metric("Failover score", failover["failover_score"])
+    f2.metric("Drill status", failover["readiness_status"])
+    f3.metric("Fallbacks used", failover_summary["fallback_used_count"])
+    f4.metric("External calls", failover_summary["external_call_count"])
+    st.dataframe(
+        [
+            {
+                "scenario": row["scenario_id"],
+                "configured": row["configured_provider"],
+                "status": row["status"],
+                "provider": row["provider"],
+                "fallback": row["fallback_used"],
+                "fail_closed": row["fail_closed"],
+                "external_call": row["external_call"],
+            }
+            for row in failover["provider_scenarios"]
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+    st.subheader("Failover Controls")
+    st.dataframe(failover["control_checks"], use_container_width=True, hide_index=True)
+
     st.subheader("Limitations")
     for limitation in readiness["limitations"]:
         st.markdown(f"- {limitation}")
@@ -2807,6 +2842,26 @@ with tabs[43]:
         st.markdown(pack["markdown"])
         with st.expander("Provider Readiness Pack JSON"):
             st.json(pack["pack"])
+
+    failover_pack = st.session_state.get("provider_failover_pack")
+    if failover_pack:
+        st.caption(f"Failover Markdown: {failover_pack['markdown_path']}")
+        st.caption(f"Failover JSON: {failover_pack['json_path']}")
+        st.download_button(
+            "Download Provider Failover Pack",
+            data=failover_pack["markdown"],
+            file_name=f"{failover_pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.subheader("Provider Activation Decision Table")
+        st.dataframe(
+            failover_pack["pack"]["failover_drill"]["activation_decision_table"],
+            use_container_width=True,
+            hide_index=True,
+        )
+        st.markdown(failover_pack["markdown"])
+        with st.expander("Provider Failover Pack JSON"):
+            st.json(failover_pack["pack"])
 
 with tabs[44]:
     left, right = st.columns(2)

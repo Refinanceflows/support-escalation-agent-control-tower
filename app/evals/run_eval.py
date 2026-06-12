@@ -59,6 +59,8 @@ async def run_eval() -> None:
     capacity_plan = await container.capacity_planning.export_staffing_plan()
     provider_readiness = await container.provider_readiness.readiness()
     provider_pack = await container.provider_readiness.export_pack()
+    provider_failover = await container.provider_failover.failover_drill()
+    provider_failover_pack = await container.provider_failover.export_pack()
     communication_quality = await container.communication_quality.quality_audit()
     communication_quality_pack = await container.communication_quality.export_quality_pack()
     escalation_quality = await container.escalation_quality.quality_audit()
@@ -78,6 +80,9 @@ async def run_eval() -> None:
         and capacity_forecast["queue_forecast"]
         and provider_readiness["readiness_status"] == "local_mock_ready"
         and provider_readiness["summary"]["secrets_exposed"] is False
+        and provider_failover["readiness_status"] == "ready"
+        and provider_failover["summary"]["external_call_count"] == 0
+        and provider_failover["summary"]["fail_closed_count"] >= 1
         and communication_quality["overall_score"] >= 60
         and communication_quality["scenario_coverage"]["coverage_status"] == "pass"
         and escalation_quality["overall_score"] >= 60
@@ -128,6 +133,10 @@ async def run_eval() -> None:
     print(f"Provider Readiness status: {provider_readiness['readiness_status']}")
     print(f"Provider Readiness score: {provider_readiness['provider_score']}")
     print(f"Provider Readiness Pack: {provider_pack['markdown_path']}")
+    print(f"Provider Failover status: {provider_failover['readiness_status']}")
+    print(f"Provider Failover score: {provider_failover['failover_score']}")
+    print(f"Provider Failover external calls: {provider_failover['summary']['external_call_count']}")
+    print(f"Provider Failover Pack: {provider_failover_pack['markdown_path']}")
     print(f"Communication Quality status: {communication_quality['status']}")
     print(f"Communication Quality score: {communication_quality['overall_score']}")
     print(f"Communication Quality Pack: {communication_quality_pack['markdown_path']}")

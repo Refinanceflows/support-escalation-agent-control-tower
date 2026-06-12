@@ -522,6 +522,20 @@ def run_with_http_server() -> dict | None:
         )
         provider_pack_response.raise_for_status()
         result["provider_readiness_pack"] = provider_pack_response.json()
+        provider_failover_response = requests.get(
+            f"{BASE}/providers/failover-drill",
+            headers=headers,
+            timeout=60,
+        )
+        provider_failover_response.raise_for_status()
+        result["provider_failover_drill"] = provider_failover_response.json()
+        provider_failover_pack_response = requests.post(
+            f"{BASE}/providers/failover-pack",
+            headers=headers,
+            timeout=60,
+        )
+        provider_failover_pack_response.raise_for_status()
+        result["provider_failover_pack"] = provider_failover_pack_response.json()
         autonomy_audit_response = requests.get(
             f"{BASE}/governance/autonomy-audit",
             headers=headers,
@@ -869,6 +883,12 @@ def run_in_process() -> dict:
         provider_pack_response = client.post("/providers/readiness-pack", headers={"x-api-key": token})
         provider_pack_response.raise_for_status()
         result["provider_readiness_pack"] = provider_pack_response.json()
+        provider_failover_response = client.get("/providers/failover-drill", headers={"x-api-key": token})
+        provider_failover_response.raise_for_status()
+        result["provider_failover_drill"] = provider_failover_response.json()
+        provider_failover_pack_response = client.post("/providers/failover-pack", headers={"x-api-key": token})
+        provider_failover_pack_response.raise_for_status()
+        result["provider_failover_pack"] = provider_failover_pack_response.json()
         autonomy_audit_response = client.get("/governance/autonomy-audit", headers={"x-api-key": token})
         autonomy_audit_response.raise_for_status()
         result["autonomy_governance"] = autonomy_audit_response.json()
@@ -968,6 +988,8 @@ def main():
     risk_register_pack = result["risk_register_pack"]
     provider_readiness = result["provider_readiness"]
     provider_readiness_pack = result["provider_readiness_pack"]
+    provider_failover = result["provider_failover_drill"]
+    provider_failover_pack = result["provider_failover_pack"]
     autonomy_governance = result["autonomy_governance"]
     autonomy_governance_pack = result["autonomy_governance_pack"]
     workflow_durability = result["workflow_durability"]
@@ -1249,6 +1271,15 @@ def main():
     )
     print("Provider Readiness Pack:", provider_readiness_pack["markdown_path"])
     print("Provider Readiness JSON:", provider_readiness_pack["json_path"])
+    print(
+        "Provider Failover:",
+        provider_failover["readiness_status"],
+        f"score={provider_failover['failover_score']}",
+        f"fallbacks={provider_failover['summary']['fallback_used_count']}",
+        f"external={provider_failover['summary']['external_call_count']}",
+    )
+    print("Provider Failover Pack:", provider_failover_pack["markdown_path"])
+    print("Provider Failover JSON:", provider_failover_pack["json_path"])
     print(
         "Autonomy Governance:",
         autonomy_governance["readiness_status"],

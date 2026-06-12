@@ -267,6 +267,12 @@ EXPECTED_ARTIFACTS = [
         "formats": ["markdown", "json"],
     },
     {
+        "name": "Provider Failover and Fallback Drill Pack",
+        "directory": "data/provider_failover_packs",
+        "producer": "POST /providers/failover-pack",
+        "formats": ["markdown", "json"],
+    },
+    {
         "name": "Autonomy Governance and Tool Trust Pack",
         "directory": "data/autonomy_governance_packs",
         "producer": "POST /governance/autonomy-pack",
@@ -417,6 +423,8 @@ class LaunchChecklistService:
             self._row("POST", "/risk/register-pack", True, "Writes the Enterprise Risk Register Pack.", True, "data/risk_registers"),
             self._row("GET", "/providers/readiness", True, "Returns provider readiness and local/mock LLM posture.", False),
             self._row("POST", "/providers/readiness-pack", True, "Writes the Provider Readiness Guard Pack.", True, "data/provider_readiness_packs"),
+            self._row("GET", "/providers/failover-drill", True, "Runs provider fallback and fail-closed checks without external calls.", False),
+            self._row("POST", "/providers/failover-pack", True, "Writes the Provider Failover and Fallback Drill Pack.", True, "data/provider_failover_packs"),
             self._row("GET", "/governance/autonomy-audit", True, "Returns autonomy loop budget, tool trust, HITL, token, and cost governance checks.", False),
             self._row("POST", "/governance/autonomy-pack", True, "Writes the Autonomy Governance and Tool Trust Pack.", True, "data/autonomy_governance_packs"),
             self._row("GET", "/workflows/durability-audit", True, "Returns durable workflow checkpoint, resume token, and recovery checks.", False),
