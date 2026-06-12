@@ -345,6 +345,10 @@ The health score is deterministic and local. It starts at 100 and subtracts weig
 
 `POST /customers/renewal-control-pack` writes Markdown and JSON under `data/renewal_control_packs/`. The pack is the operator-facing proof artifact for the governance board and includes review queue, acceptance criteria, blocked-action policy, local verification endpoints, and limitations. It does not send customer commitments or mutate any CRM.
 
+`GET /customers/renewal-handoff-gate` evaluates whether high-risk renewal accounts are ready for human renewal review. It checks generated renewal review/control artifacts, owner assignments, blocker clearance plans, support evidence, commercial review gates, role playbook coverage, blocked external commitments, and resumable run transparency.
+
+`POST /customers/renewal-handoff-pack` writes Markdown and JSON under `data/renewal_handoff_packs/`. The pack is a local artifact handoff for support leads, CSMs, blocker owners, and commercial owners. It implements review gates, artifact handoffs, role playbooks, and run transparency without approving commitments or mutating CRM, billing, Zendesk, Jira, Slack, Azure, OpenAI, or external services.
+
 `POST /customers/{customer_id_or_name}/renewal-review` writes Markdown and JSON under `data/renewal_reviews/`. The review packages executive summary, support evidence, renewal blockers, SLA drag components, customer-success review fields, owner actions, assumptions, and limitations for an account renewal meeting without calling CRM, billing, Zendesk, Jira, Slack, Azure, OpenAI, or external services.
 
 ## Routing

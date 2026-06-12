@@ -1282,11 +1282,79 @@ def test_renewal_control_board_and_pack_export(client):
     assert "## Durable Review Checkpoints" in markdown
 
 
+def test_renewal_handoff_gate_and_pack_export(client):
+    token = client.post("/auth/demo-token").json()["token"]
+    headers = {"X-API-Key": token}
+    ticket = client.post(
+        "/tickets/ingest",
+        headers=headers,
+        json={
+            "subject": "Northstar renewal handoff needs SSO evidence",
+            "body": (
+                "The VP Clinical Operations needs SSO incident evidence, blocker ownership, "
+                "and a support plan before the renewal review."
+            ),
+            "customer": "Northstar Health",
+            "customer_email": "ops@northstar.example",
+            "priority": "urgent",
+            "customer_tier": "enterprise",
+            "tags": ["auth", "sso", "renewal"],
+        },
+    ).json()
+    run = client.post(f"/tickets/{ticket['ticket_id']}/analyze", headers=headers).json()
+    review = client.post("/customers/northstar-health/renewal-review", headers=headers).json()
+    control = client.post("/customers/renewal-control-pack", headers=headers).json()
+
+    response = client.get("/customers/renewal-handoff-gate", headers=headers)
+    assert response.status_code == 200, response.text
+    gate = response.json()
+    northstar = next(item for item in gate["accounts"] if item["customer_id"] == "northstar-health")
+
+    assert gate["mode"] == "local-deterministic-renewal-handoff-gate"
+    assert {"review gates", "artifact handoffs", "role playbooks", "run transparency"} <= set(
+        gate["implemented_patterns"]
+    )
+    assert gate["summary"]["account_count"] >= 1
+    assert gate["summary"]["blocked_handoff_action_count"] >= 1
+    assert northstar["handoff_status"] in {"blocked", "needs_review", "ready"}
+    assert northstar["readiness_score"] <= 100
+    assert any(
+        item["artifact"] == "account_renewal_review_markdown" and item["status"] == "generated"
+        for item in northstar["required_artifact_handoffs"]
+    )
+    assert any(check["check_id"] == "artifact_handoff" for check in northstar["handoff_checks"])
+    assert northstar["role_assignments"]
+    assert northstar["run_transparency"]["resume_token"].startswith("renewal:northstar-health:")
+    assert "GET /customers/renewal-handoff-gate" in northstar["run_transparency"]["local_endpoints"]
+    assert northstar["blocked_handoff_actions"]
+    assert run["status"] == "awaiting_approval"
+    assert Path(review["markdown_path"]).exists()
+    assert Path(control["markdown_path"]).exists()
+
+    export_response = client.post("/customers/renewal-handoff-pack", headers=headers)
+    assert export_response.status_code == 200, export_response.text
+    exported = export_response.json()
+    pack = exported["pack"]
+    markdown = exported["markdown"]
+
+    assert exported["status"] == gate["summary"]["status"]
+    assert "renewal_handoff_packs" in exported["markdown_path"]
+    assert Path(exported["markdown_path"]).exists()
+    assert Path(exported["json_path"]).exists()
+    assert pack["handoff_queue"]
+    assert pack["blocked_handoff_actions"]
+    assert "GET /customers/renewal-handoff-gate" in pack["local_verification"]["endpoints"]
+    assert "# Renewal Handoff Readiness Pack" in markdown
+    assert "## Artifact Handoffs" in markdown
+    assert "## Role Playbook" in markdown
+
+
 def test_renewal_review_is_listed_in_artifact_inventory(client):
     token = client.post("/auth/demo-token").json()["token"]
     headers = {"X-API-Key": token}
     client.post("/customers/northstar-health/renewal-review", headers=headers)
     client.post("/customers/renewal-control-pack", headers=headers)
+    client.post("/customers/renewal-handoff-pack", headers=headers)
 
     response = client.get("/artifacts/inventory", headers=headers)
     assert response.status_code == 200, response.text
@@ -1306,6 +1374,13 @@ def test_renewal_review_is_listed_in_artifact_inventory(client):
     assert control_row["file_count"] >= 2
     assert "HITL" in control_row["name"]
     assert "blocked automation" in control_row["reviewer_purpose"]
+    handoff_row = next(
+        item for item in inventory["artifacts"] if item["directory"] == "data/renewal_handoff_packs"
+    )
+    assert handoff_row["producer"] == "POST /customers/renewal-handoff-pack"
+    assert handoff_row["file_count"] >= 2
+    assert "Handoff" in handoff_row["name"]
+    assert "artifact handoff" in handoff_row["reviewer_purpose"]
 
 
 def test_replay_lab_detects_changed_decisions(client):

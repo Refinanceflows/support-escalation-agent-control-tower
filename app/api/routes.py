@@ -772,6 +772,16 @@ async def customer_renewal_control_pack(request: Request):
     return await get_container(request).customers.export_renewal_control_pack()
 
 
+@router.get("/customers/renewal-handoff-gate", dependencies=[Depends(require_api_key)])
+async def customer_renewal_handoff_gate(request: Request):
+    return await get_container(request).customers.renewal_handoff_gate()
+
+
+@router.post("/customers/renewal-handoff-pack", dependencies=[Depends(require_api_key)])
+async def customer_renewal_handoff_pack(request: Request):
+    return await get_container(request).customers.export_renewal_handoff_pack()
+
+
 @router.post("/customers/{customer_id_or_name}/renewal-review", dependencies=[Depends(require_api_key)])
 async def customer_renewal_review(customer_id_or_name: str, request: Request):
     try:

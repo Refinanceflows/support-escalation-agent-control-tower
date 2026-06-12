@@ -354,6 +354,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /customers/renewal-control-pack`
   Writes Markdown and JSON under the ignored local renewal control folder, normally `data/renewal_control_packs/`. The pack includes the control board, review queue, blocked-action policy, operator acceptance criteria, local verification endpoints, and limitations.
 
+- `GET /customers/renewal-handoff-gate`
+  Returns a local deterministic renewal handoff readiness gate for high-risk accounts. It checks generated renewal review/control artifacts, owner assignments, blocker clearance plans, support evidence readiness, commercial review gates, role playbook coverage, blocked external commitments, and resumable run transparency.
+
+- `POST /customers/renewal-handoff-pack`
+  Writes Markdown and JSON under the ignored local renewal handoff folder, normally `data/renewal_handoff_packs/`. The pack includes the handoff gate, queue, role playbook, artifact handoff checks, blocked external commitment actions, local verification endpoints, and limitations.
+
 - `POST /customers/{customer_id_or_name}/renewal-review`
   Writes Markdown and JSON under the ignored local renewal review folder, normally `data/renewal_reviews/`. The review includes executive summary, renewal risk, support evidence, pending approvals, outbox summary, blocker register, customer-success review, assumptions, and limitations. The path parameter can be the returned `customer_id` slug or the account/customer name.
 

@@ -620,6 +620,20 @@ def run_with_http_server() -> dict | None:
         )
         renewal_control_pack_response.raise_for_status()
         result["renewal_control_pack"] = renewal_control_pack_response.json()
+        renewal_handoff_response = requests.get(
+            f"{BASE}/customers/renewal-handoff-gate",
+            headers=headers,
+            timeout=60,
+        )
+        renewal_handoff_response.raise_for_status()
+        result["renewal_handoff_gate"] = renewal_handoff_response.json()
+        renewal_handoff_pack_response = requests.post(
+            f"{BASE}/customers/renewal-handoff-pack",
+            headers=headers,
+            timeout=60,
+        )
+        renewal_handoff_pack_response.raise_for_status()
+        result["renewal_handoff_pack"] = renewal_handoff_pack_response.json()
         result["mode"] = "http"
         return result
     except Exception:
@@ -953,6 +967,12 @@ def run_in_process() -> dict:
         renewal_control_pack_response = client.post("/customers/renewal-control-pack", headers={"x-api-key": token})
         renewal_control_pack_response.raise_for_status()
         result["renewal_control_pack"] = renewal_control_pack_response.json()
+        renewal_handoff_response = client.get("/customers/renewal-handoff-gate", headers={"x-api-key": token})
+        renewal_handoff_response.raise_for_status()
+        result["renewal_handoff_gate"] = renewal_handoff_response.json()
+        renewal_handoff_pack_response = client.post("/customers/renewal-handoff-pack", headers={"x-api-key": token})
+        renewal_handoff_pack_response.raise_for_status()
+        result["renewal_handoff_pack"] = renewal_handoff_pack_response.json()
         result["mode"] = "in-process"
         return result
 
@@ -1042,6 +1062,8 @@ def main():
     daily_ops_brief_pack = result["daily_ops_brief_pack"]
     renewal_control_board = result["renewal_control_board"]
     renewal_control_pack = result["renewal_control_pack"]
+    renewal_handoff_gate = result["renewal_handoff_gate"]
+    renewal_handoff_pack = result["renewal_handoff_pack"]
     policy_simulation = policy["pack"]["primary_simulation"]
     policy_change = policy_change_pack["pack"]["simulation"]
     policy_rollout = policy_rollout_pack["pack"]["rollout_plan"]
@@ -1375,6 +1397,14 @@ def main():
     )
     print("Renewal Control Pack:", renewal_control_pack["markdown_path"])
     print("Renewal Control JSON:", renewal_control_pack["json_path"])
+    print(
+        "Renewal Handoff Gate:",
+        renewal_handoff_gate["summary"]["status"],
+        f"blocked={renewal_handoff_gate['summary']['blocked_count']}",
+        f"top_gap={renewal_handoff_gate['summary']['top_gap']}",
+    )
+    print("Renewal Handoff Pack:", renewal_handoff_pack["markdown_path"])
+    print("Renewal Handoff JSON:", renewal_handoff_pack["json_path"])
     print("Incident impact status:", metrics["incident_impact_status"])
     print("Incident narrative:", metrics["incident_narrative_path"])
     print("Finance impact artifact:", metrics["finance_impact_path"])

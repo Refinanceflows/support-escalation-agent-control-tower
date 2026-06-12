@@ -132,6 +132,7 @@ class ServiceContainer:
             settings.state_file.parent / "account_briefs",
             settings.state_file.parent / "renewal_reviews",
             settings.state_file.parent / "renewal_control_packs",
+            settings.state_file.parent / "renewal_handoff_packs",
         )
         self.replay_lab = ReplayLabService(
             self.store,

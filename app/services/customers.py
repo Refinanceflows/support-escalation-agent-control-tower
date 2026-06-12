@@ -31,6 +31,7 @@ class CustomerHealthService:
         account_briefs_dir: Path,
         renewal_reviews_dir: Path,
         renewal_control_dir: Path,
+        renewal_handoff_dir: Path,
     ):
         self.store = store
         self.ticket_service = ticket_service
@@ -40,6 +41,7 @@ class CustomerHealthService:
         self.account_briefs_dir = account_briefs_dir
         self.renewal_reviews_dir = renewal_reviews_dir
         self.renewal_control_dir = renewal_control_dir
+        self.renewal_handoff_dir = renewal_handoff_dir
 
     async def health(self) -> dict[str, Any]:
         tickets = await self.ticket_service.list()
@@ -184,6 +186,82 @@ class CustomerHealthService:
             "pack_id": pack_id,
             "format": "markdown+json",
             "status": board["summary"]["status"],
+            "json_path": str(json_path),
+            "markdown_path": str(markdown_path),
+            "pack": pack,
+            "markdown": markdown,
+        }
+
+    async def renewal_handoff_gate(self) -> dict[str, Any]:
+        renewal = await self.renewal_risk()
+        board = await self.renewal_control_board()
+        controls_by_id = {row["customer_id"]: row for row in board["control_board"]}
+        accounts = [
+            self._renewal_handoff_row(row, controls_by_id[row["customer_id"]])
+            for row in renewal["accounts"]
+            if row["renewal_risk_level"] in {"critical", "high"}
+            or controls_by_id[row["customer_id"]]["review_status"] != "monitor"
+        ]
+        return {
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "title": "Renewal Handoff Readiness Gate",
+            "mode": "local-deterministic-renewal-handoff-gate",
+            "local_mock_only": True,
+            "implemented_patterns": [
+                "review gates",
+                "artifact handoffs",
+                "role playbooks",
+                "run transparency",
+            ],
+            "summary": self._renewal_handoff_summary(accounts),
+            "role_playbook": self._renewal_handoff_role_playbook(),
+            "accounts": accounts,
+            "operator_acceptance_criteria": self._renewal_handoff_acceptance_criteria(),
+            "limitations": self._renewal_handoff_limitations(),
+        }
+
+    async def export_renewal_handoff_pack(self) -> dict[str, Any]:
+        gate = await self.renewal_handoff_gate()
+        generated_at = datetime.now(timezone.utc)
+        pack_id = f"renewal_handoff_{generated_at.strftime('%Y%m%d_%H%M%S')}"
+        json_path = self.renewal_handoff_dir / f"{pack_id}.json"
+        markdown_path = self.renewal_handoff_dir / f"{pack_id}.md"
+        pack = {
+            "pack_id": pack_id,
+            "generated_at": generated_at.isoformat(),
+            "title": "Renewal Handoff Readiness Pack",
+            "gate": gate,
+            "handoff_queue": [
+                row for row in gate["accounts"] if row["handoff_status"] != "ready"
+            ],
+            "blocked_handoff_actions": [
+                action
+                for row in gate["accounts"]
+                for action in row["blocked_handoff_actions"]
+            ],
+            "local_verification": {
+                "endpoints": [
+                    "GET /customers/renewal-handoff-gate",
+                    "POST /customers/renewal-handoff-pack",
+                    "GET /customers/renewal-control-board",
+                    "POST /customers/{customer_id_or_name}/renewal-review",
+                ],
+                "artifact_directory": "data/renewal_handoff_packs",
+                "demo_command": r".\.venv\Scripts\python.exe scripts\demo_run.py",
+            },
+            "artifact_paths": {
+                "renewal_handoff_markdown": str(markdown_path),
+                "renewal_handoff_json": str(json_path),
+            },
+        }
+        markdown = self._renewal_handoff_markdown(pack)
+        self.renewal_handoff_dir.mkdir(parents=True, exist_ok=True)
+        json_path.write_text(json.dumps(pack, indent=2, default=str), encoding="utf-8")
+        markdown_path.write_text(markdown, encoding="utf-8")
+        return {
+            "pack_id": pack_id,
+            "format": "markdown+json",
+            "status": gate["summary"]["status"],
             "json_path": str(json_path),
             "markdown_path": str(markdown_path),
             "pack": pack,
@@ -1010,6 +1088,364 @@ class CustomerHealthService:
             "Generated control packs are ignored local proof artifacts and should be regenerated.",
         ]
 
+    def _renewal_handoff_row(
+        self,
+        row: dict[str, Any],
+        control: dict[str, Any],
+    ) -> dict[str, Any]:
+        artifacts = self._renewal_required_artifacts(row["customer_id"])
+        checks = self._renewal_handoff_checks(row, control, artifacts)
+        failed_checks = [check for check in checks if check["status"] == "fail"]
+        warning_checks = [check for check in checks if check["status"] == "warn"]
+        weighted_risk = sum(check["weight"] for check in failed_checks) + round(
+            sum(check["weight"] for check in warning_checks) * 0.5
+        )
+        readiness_score = max(0, 100 - weighted_risk)
+        if any(check["critical"] and check["status"] == "fail" for check in checks):
+            status = "blocked"
+        elif failed_checks or readiness_score < 82:
+            status = "needs_review"
+        else:
+            status = "ready"
+        return {
+            "customer_id": row["customer_id"],
+            "account": row["account"],
+            "renewal_risk_level": row["renewal_risk_level"],
+            "renewal_risk_score": row["renewal_risk_score"],
+            "arr_at_risk_usd": row["arr_at_risk_usd"],
+            "review_status": control["review_status"],
+            "handoff_status": status,
+            "readiness_score": readiness_score,
+            "failed_check_count": len(failed_checks),
+            "warning_check_count": len(warning_checks),
+            "primary_owner": control["primary_owner"],
+            "required_approval_type": control["required_approval_type"],
+            "resume_token": control["resume_token"],
+            "handoff_checks": checks,
+            "required_artifact_handoffs": artifacts,
+            "role_assignments": self._renewal_role_assignments(row, control),
+            "run_transparency": self._renewal_run_transparency(row, control),
+            "blocked_handoff_actions": self._renewal_blocked_handoff_actions(row, status),
+            "next_operator_action": self._renewal_handoff_next_action(status, failed_checks, warning_checks),
+        }
+
+    def _renewal_required_artifacts(self, customer_id: str) -> list[dict[str, str]]:
+        review_md = self.renewal_reviews_dir / f"{customer_id}.md"
+        review_json = self.renewal_reviews_dir / f"{customer_id}.json"
+        control_files = self._latest_artifact_files(self.renewal_control_dir)
+        return [
+            {
+                "artifact": "account_renewal_review_markdown",
+                "status": "generated" if review_md.exists() else "missing",
+                "path": str(review_md),
+                "producer": "POST /customers/{customer_id_or_name}/renewal-review",
+            },
+            {
+                "artifact": "account_renewal_review_json",
+                "status": "generated" if review_json.exists() else "missing",
+                "path": str(review_json),
+                "producer": "POST /customers/{customer_id_or_name}/renewal-review",
+            },
+            {
+                "artifact": "renewal_control_pack",
+                "status": "generated" if control_files else "missing",
+                "path": control_files[0] if control_files else str(self.renewal_control_dir),
+                "producer": "POST /customers/renewal-control-pack",
+            },
+        ]
+
+    def _latest_artifact_files(self, directory: Path) -> list[str]:
+        if not directory.exists():
+            return []
+        files = [
+            path
+            for path in directory.iterdir()
+            if path.is_file() and path.suffix.lower() in {".md", ".json"}
+        ]
+        files.sort(key=lambda path: (path.stat().st_mtime, path.name), reverse=True)
+        return [str(path) for path in files]
+
+    def _renewal_handoff_checks(
+        self,
+        row: dict[str, Any],
+        control: dict[str, Any],
+        artifacts: list[dict[str, str]],
+    ) -> list[dict[str, Any]]:
+        artifact_ready = all(item["status"] == "generated" for item in artifacts)
+        owner_ready = bool(control["primary_owner"]) and all(
+            action.get("owner") and action.get("action") for action in row["owner_actions"]
+        )
+        blockers_ready = all(
+            blocker.get("owner") and blocker.get("recommended_clearance")
+            for blocker in row["renewal_blockers"]
+        )
+        support_ready = (
+            row["health"]["pending_approval_count"] == 0
+            and row["health"]["high_sla_risk_count"] == 0
+            and row["sla_drag"]["level"] not in {"high", "severe"}
+        )
+        commercial_ready = (
+            row["renewal_risk_level"] not in {"critical", "high"}
+            or bool(control["required_human_decisions"])
+        )
+        return [
+            self._handoff_check(
+                "risk_triage",
+                "Renewal risk triage is computed.",
+                True,
+                8,
+                "GET /customers/renewal-risk produced score, level, sentiment, SLA drag, and ARR exposure.",
+                "support-ops",
+                critical=True,
+            ),
+            self._handoff_check(
+                "artifact_handoff",
+                "Required review artifacts are generated.",
+                artifact_ready,
+                22,
+                f"{sum(1 for item in artifacts if item['status'] == 'generated')}/{len(artifacts)} artifacts present.",
+                "support-ops",
+                critical=True,
+            ),
+            self._handoff_check(
+                "owner_assignment",
+                "Every action has an accountable owner.",
+                owner_ready,
+                16,
+                f"{len(row['owner_actions'])} owner actions and primary owner {control['primary_owner']}.",
+                control["primary_owner"] or "customer-success",
+                critical=True,
+            ),
+            self._handoff_check(
+                "blocker_clearance_plan",
+                "Renewal blockers have owner clearance plans.",
+                blockers_ready,
+                14,
+                f"{len(row['renewal_blockers'])} blockers reviewed.",
+                control["primary_owner"],
+            ),
+            self._handoff_check(
+                "support_evidence_ready",
+                "Support evidence is ready for external renewal review.",
+                support_ready,
+                24,
+                (
+                    f"{row['health']['pending_approval_count']} pending approvals, "
+                    f"{row['health']['high_sla_risk_count']} high-SLA runs, "
+                    f"{row['sla_drag']['total_minutes']} SLA-drag minutes."
+                ),
+                "support-lead",
+                critical=row["renewal_risk_level"] == "critical",
+            ),
+            self._handoff_check(
+                "commercial_review_gate",
+                "Commercial review gate is explicit.",
+                commercial_ready,
+                16,
+                (
+                    f"{len(control['required_human_decisions'])} human decisions; "
+                    f"approval type {control['required_approval_type']}."
+                ),
+                row["commercial_owner"],
+                critical=True,
+            ),
+        ]
+
+    def _handoff_check(
+        self,
+        check_id: str,
+        label: str,
+        passed: bool,
+        weight: int,
+        evidence: str,
+        owner: str,
+        *,
+        critical: bool = False,
+    ) -> dict[str, Any]:
+        return {
+            "check_id": check_id,
+            "label": label,
+            "status": "pass" if passed else "fail",
+            "weight": weight,
+            "critical": critical,
+            "owner": owner,
+            "evidence": evidence,
+        }
+
+    def _renewal_role_assignments(
+        self,
+        row: dict[str, Any],
+        control: dict[str, Any],
+    ) -> list[dict[str, str]]:
+        assignments = [
+            {
+                "role": "commercial_owner",
+                "owner": row["commercial_owner"],
+                "responsibility": "Approve renewal posture and customer-facing commitments.",
+            },
+            {
+                "role": "support_lead",
+                "owner": "support-lead",
+                "responsibility": "Clear pending approvals and certify support evidence.",
+            },
+            {
+                "role": "customer_success",
+                "owner": "customer-success",
+                "responsibility": "Own sentiment recovery and executive communication cadence.",
+            },
+        ]
+        if row["renewal_blockers"]:
+            assignments.append(
+                {
+                    "role": "blocker_owner",
+                    "owner": row["renewal_blockers"][0]["owner"],
+                    "responsibility": "Drive the highest-severity blocker to documented clearance.",
+                }
+            )
+        if control["review_status"] == "executive_review_required":
+            assignments.append(
+                {
+                    "role": "executive_sponsor",
+                    "owner": row["executive_sponsor"],
+                    "responsibility": "Review risk posture before executive renewal meeting.",
+                }
+            )
+        return assignments
+
+    def _renewal_run_transparency(
+        self,
+        row: dict[str, Any],
+        control: dict[str, Any],
+    ) -> dict[str, Any]:
+        return {
+            "resume_token": control["resume_token"],
+            "evidence_refs": control["evidence_refs"],
+            "control_signals": control["control_signals"],
+            "checkpoint_statuses": {
+                checkpoint["stage"]: checkpoint["status"]
+                for checkpoint in control["durable_review_checkpoints"]
+            },
+            "local_endpoints": [
+                "GET /customers/renewal-risk",
+                "GET /customers/renewal-control-board",
+                "GET /customers/renewal-handoff-gate",
+            ],
+        }
+
+    def _renewal_blocked_handoff_actions(
+        self,
+        row: dict[str, Any],
+        status: str,
+    ) -> list[dict[str, str]]:
+        if status == "ready":
+            return []
+        return [
+            {
+                "account": row["account"],
+                "action": "send_external_qbr_commitment",
+                "blocked_until": "renewal handoff gate is ready",
+                "policy": "External commitments require generated evidence, named owners, and review-gate clearance.",
+            },
+            {
+                "account": row["account"],
+                "action": "close_renewal_risk",
+                "blocked_until": "failed handoff checks are cleared",
+                "policy": "High-risk account cannot be marked green from local scoring alone.",
+            },
+        ]
+
+    def _renewal_handoff_next_action(
+        self,
+        status: str,
+        failed_checks: list[dict[str, Any]],
+        warning_checks: list[dict[str, Any]],
+    ) -> str:
+        if status == "ready":
+            return "Proceed to human renewal review with generated artifacts attached."
+        checks = failed_checks or warning_checks
+        if checks:
+            check = sorted(checks, key=lambda item: item["weight"], reverse=True)[0]
+            return f"Clear `{check['check_id']}` with {check['owner']} before external renewal commitments."
+        return "Review handoff gate before external renewal commitments."
+
+    def _renewal_handoff_summary(self, accounts: list[dict[str, Any]]) -> dict[str, Any]:
+        blocked = [row for row in accounts if row["handoff_status"] == "blocked"]
+        needs_review = [row for row in accounts if row["handoff_status"] == "needs_review"]
+        ready = [row for row in accounts if row["handoff_status"] == "ready"]
+        return {
+            "status": "blocked" if blocked else "needs_review" if needs_review else "ready",
+            "account_count": len(accounts),
+            "blocked_count": len(blocked),
+            "needs_review_count": len(needs_review),
+            "ready_count": len(ready),
+            "average_readiness_score": round(
+                sum(row["readiness_score"] for row in accounts) / len(accounts), 1
+            )
+            if accounts
+            else 100,
+            "blocked_handoff_action_count": sum(
+                len(row["blocked_handoff_actions"]) for row in accounts
+            ),
+            "top_gap": self._renewal_top_handoff_gap(accounts),
+        }
+
+    def _renewal_top_handoff_gap(self, accounts: list[dict[str, Any]]) -> str | None:
+        gaps = Counter(
+            check["check_id"]
+            for row in accounts
+            for check in row["handoff_checks"]
+            if check["status"] == "fail"
+        )
+        return gaps.most_common(1)[0][0] if gaps else None
+
+    def _renewal_handoff_role_playbook(self) -> list[dict[str, str]]:
+        return [
+            {
+                "role": "support-lead",
+                "handoff": "Certify pending approvals, high-SLA risk, and SLA drag are represented in the review artifact.",
+            },
+            {
+                "role": "customer-success",
+                "handoff": "Own sentiment recovery, sponsor update cadence, and QBR talking points.",
+            },
+            {
+                "role": "commercial-owner",
+                "handoff": "Approve renewal posture before external commitments or green status changes.",
+            },
+            {
+                "role": "blocker-owner",
+                "handoff": "Attach clearance evidence for the highest-severity renewal blockers.",
+            },
+        ]
+
+    def _renewal_handoff_acceptance_criteria(self) -> list[dict[str, str]]:
+        return [
+            {
+                "criterion": "Review artifacts are present before customer-facing renewal commitments.",
+                "evidence": "accounts[].required_artifact_handoffs all report generated.",
+            },
+            {
+                "criterion": "Each handoff has a role owner and visible next action.",
+                "evidence": "accounts[].role_assignments and next_operator_action are populated.",
+            },
+            {
+                "criterion": "Failed checks block external QBR commitments.",
+                "evidence": "accounts[].blocked_handoff_actions lists send_external_qbr_commitment when not ready.",
+            },
+            {
+                "criterion": "Run transparency is local and resumable.",
+                "evidence": "accounts[].run_transparency includes resume token, endpoint list, and checkpoint statuses.",
+            },
+        ]
+
+    def _renewal_handoff_limitations(self) -> list[str]:
+        return [
+            "Handoff readiness is a deterministic local gate over fake account data and generated local artifacts.",
+            "The gate does not approve customer commitments or update CRM, billing, Zendesk, Jira, Slack, Azure, OpenAI, or external services.",
+            "Artifact presence is checked on the local filesystem under ignored data directories.",
+            "Commercial approvals are modeled as review gates, not legally binding renewal decisions.",
+        ]
+
     def _renewal_executive_summary(self, row: dict[str, Any]) -> str:
         return (
             f"{row['account']} is {row['renewal_risk_level']} renewal risk with score "
@@ -1488,6 +1924,98 @@ class CustomerHealthService:
                 "",
                 "## Limitations",
                 *limitation_rows,
+                "",
+            ]
+        )
+
+    def _renewal_handoff_markdown(self, pack: dict[str, Any]) -> str:
+        gate = pack["gate"]
+        summary = gate["summary"]
+        account_rows = [
+            (
+                f"| {row['account']} | {row['handoff_status']} | {row['readiness_score']} | "
+                f"{row['renewal_risk_level']} | ${row['arr_at_risk_usd']:,.0f} | "
+                f"{row['failed_check_count']} | {row['primary_owner']} |"
+            )
+            for row in gate["accounts"]
+        ] or ["| None | ready | 100 | healthy | $0 | 0 | support-ops |"]
+        check_rows = [
+            (
+                f"| {row['account']} | {check['check_id']} | {check['status']} | "
+                f"{check['owner']} | {check['evidence']} |"
+            )
+            for row in gate["accounts"]
+            for check in row["handoff_checks"]
+        ]
+        artifact_rows = [
+            (
+                f"| {row['account']} | {artifact['artifact']} | {artifact['status']} | "
+                f"`{artifact['path']}` | `{artifact['producer']}` |"
+            )
+            for row in gate["accounts"]
+            for artifact in row["required_artifact_handoffs"]
+        ]
+        role_rows = [
+            f"- **{item['role']}**: {item['handoff']}"
+            for item in gate["role_playbook"]
+        ]
+        blocked_rows = [
+            (
+                f"- **{item['account']}**: `{item['action']}` blocked until "
+                f"{item['blocked_until']} ({item['policy']})"
+            )
+            for item in pack["blocked_handoff_actions"]
+        ] or ["- No handoff actions are blocked."]
+        criteria_rows = [
+            f"- [ ] **{item['criterion']}** Evidence: {item['evidence']}"
+            for item in gate["operator_acceptance_criteria"]
+        ]
+        limitations = [f"- {item}" for item in gate["limitations"]]
+        return "\n".join(
+            [
+                f"# Renewal Handoff Readiness Pack: {pack['pack_id']}",
+                "",
+                "## Summary",
+                f"- Status: {summary['status']}",
+                f"- Accounts: {summary['account_count']}",
+                f"- Blocked: {summary['blocked_count']}",
+                f"- Needs review: {summary['needs_review_count']}",
+                f"- Ready: {summary['ready_count']}",
+                f"- Average readiness score: {summary['average_readiness_score']}",
+                f"- Blocked handoff actions: {summary['blocked_handoff_action_count']}",
+                f"- Top gap: {summary['top_gap'] or 'none'}",
+                "",
+                "## Role Playbook",
+                *role_rows,
+                "",
+                "## Account Gate",
+                "| Account | Handoff Status | Score | Renewal Risk | ARR At Risk | Failed Checks | Owner |",
+                "| --- | --- | ---: | --- | ---: | ---: | --- |",
+                *account_rows,
+                "",
+                "## Review Checks",
+                "| Account | Check | Status | Owner | Evidence |",
+                "| --- | --- | --- | --- | --- |",
+                *check_rows,
+                "",
+                "## Artifact Handoffs",
+                "| Account | Artifact | Status | Path | Producer |",
+                "| --- | --- | --- | --- | --- |",
+                *artifact_rows,
+                "",
+                "## Blocked Handoff Actions",
+                *blocked_rows,
+                "",
+                "## Operator Acceptance Criteria",
+                *criteria_rows,
+                "",
+                "## Local Verification",
+                f"- Artifact directory: `{pack['local_verification']['artifact_directory']}`",
+                f"- Demo command: `{pack['local_verification']['demo_command']}`",
+                *[f"- `{endpoint}`" for endpoint in pack["local_verification"]["endpoints"]],
+                "",
+                "## Limitations",
+                *limitations,
                 "",
             ]
         )

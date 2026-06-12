@@ -350,6 +350,7 @@ with tabs[10]:
     health = api("GET", "/customers/health")
     renewal = api("GET", "/customers/renewal-risk")
     renewal_control = api("GET", "/customers/renewal-control-board")
+    renewal_handoff = api("GET", "/customers/renewal-handoff-gate")
     customers = health["customers"]
     if customers:
         c1, c2, c3, c4 = st.columns(4)
@@ -372,6 +373,12 @@ with tabs[10]:
         g2.metric("Review required", control_summary["review_required_count"])
         g3.metric("Blocked actions", control_summary["blocked_automation_action_count"])
         g4.metric("Pending checkpoints", control_summary["pending_checkpoint_count"])
+        handoff_summary = renewal_handoff["summary"]
+        h1, h2, h3, h4 = st.columns(4)
+        h1.metric("Handoff status", handoff_summary["status"])
+        h2.metric("Blocked handoffs", handoff_summary["blocked_count"])
+        h3.metric("Ready handoffs", handoff_summary["ready_count"])
+        h4.metric("Avg readiness", handoff_summary["average_readiness_score"])
         st.dataframe(
             [
                 {
@@ -410,10 +417,44 @@ with tabs[10]:
             use_container_width=True,
             hide_index=True,
         )
+        st.subheader("Renewal Handoff Gate")
+        st.dataframe(
+            [
+                {
+                    "account": item["account"],
+                    "handoff_status": item["handoff_status"],
+                    "readiness_score": item["readiness_score"],
+                    "failed_checks": item["failed_check_count"],
+                    "owner": item["primary_owner"],
+                    "next_action": item["next_operator_action"],
+                }
+                for item in renewal_handoff["accounts"]
+            ],
+            use_container_width=True,
+            hide_index=True,
+        )
         if st.button("Export Renewal Control Pack"):
             control_pack = api("POST", "/customers/renewal-control-pack")
             st.session_state["renewal_control_pack"] = control_pack
             st.success(f"Renewal control pack exported: {control_pack['markdown_path']}")
+        if st.button("Export Renewal Handoff Pack"):
+            handoff_pack = api("POST", "/customers/renewal-handoff-pack")
+            st.session_state["renewal_handoff_pack"] = handoff_pack
+            st.success(f"Renewal handoff pack exported: {handoff_pack['markdown_path']}")
+        handoff_pack = st.session_state.get("renewal_handoff_pack")
+        if handoff_pack:
+            st.caption(f"Handoff Markdown: {handoff_pack['markdown_path']}")
+            st.caption(f"Handoff JSON: {handoff_pack['json_path']}")
+            st.download_button(
+                "Download Renewal Handoff Pack",
+                data=handoff_pack["markdown"],
+                file_name=f"{handoff_pack['pack_id']}.md",
+                mime="text/markdown",
+            )
+            with st.expander("Renewal Handoff Markdown"):
+                st.markdown(handoff_pack["markdown"])
+            with st.expander("Renewal Handoff JSON"):
+                st.json(handoff_pack["pack"])
         control_pack = st.session_state.get("renewal_control_pack")
         if control_pack:
             st.caption(f"Control Markdown: {control_pack['markdown_path']}")

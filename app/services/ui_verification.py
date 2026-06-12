@@ -358,6 +358,18 @@ EXPECTED_ENDPOINTS = [
         "route_required": True,
     },
     {
+        "endpoint": "GET /customers/renewal-handoff-gate",
+        "purpose": "Renewal handoff readiness gate across artifacts, owners, blocked actions, and run transparency.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /customers/renewal-handoff-pack",
+        "purpose": "Renewal Handoff Readiness Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
         "endpoint": "POST /customers/{customer_id_or_name}/renewal-review",
         "purpose": "Renewal Risk Review artifact export.",
         "dashboard_reference_required": True,
