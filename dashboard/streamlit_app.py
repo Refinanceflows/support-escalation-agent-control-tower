@@ -87,6 +87,7 @@ tabs = st.tabs(
         "Tool Governance",
         "Agent Bus",
         "Trace Eval Lab",
+        "Escalation Decision Board",
     ]
 )
 
@@ -3654,4 +3655,69 @@ with tabs[54]:
         )
         st.markdown(pack["markdown"])
         with st.expander("Trace Eval Lab Pack JSON"):
+            st.json(pack["pack"])
+
+with tabs[55]:
+    run_id = st.text_input("Decision board run ID", value=st.session_state.get("run_id", ""))
+    board_path = f"/escalations/decision-board?run_id={run_id}" if run_id else "/escalations/decision-board"
+    pack_path = f"/escalations/decision-pack?run_id={run_id}" if run_id else "/escalations/decision-pack"
+    left, right = st.columns(2)
+    if left.button("Refresh Decision Board", type="primary", use_container_width=True):
+        board = api("GET", board_path)
+        st.session_state["escalation_decision_board"] = board
+        st.session_state["run_id"] = board["run_id"]
+    if right.button("Export Decision Pack", use_container_width=True):
+        pack = api("POST", pack_path)
+        st.session_state["escalation_decision_pack"] = pack
+        st.session_state["escalation_decision_board"] = pack["pack"]["decision_board"]
+        st.session_state["run_id"] = pack["pack"]["decision_board"]["run_id"]
+        st.success(f"Escalation Decision Pack exported: {pack['markdown_path']}")
+
+    board = st.session_state.get("escalation_decision_board") or api("GET", board_path)
+    st.session_state["escalation_decision_board"] = board
+    signals = board["signal_rollup"]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Decision score", board["decision_score"])
+    c2.metric("Status", board["decision_status"])
+    c3.metric("Exposure", f"${signals['finance_exposure_usd']:,.0f}")
+    c4.metric("Process mode", signals["process_mode"])
+
+    c5, c6, c7, c8 = st.columns(4)
+    c5.metric("ARR at risk", f"${signals['arr_at_risk_usd']:,.0f}")
+    c6.metric("Escalation quality", signals["escalation_quality_score"])
+    c7.metric("Communication quality", signals["communication_quality_score"])
+    c8.metric("Delegated tasks", signals["delegated_task_count"])
+
+    st.subheader("Executive Decision")
+    st.write(board["decision_summary"]["recommendation"])
+    st.json(board["decision_summary"])
+
+    st.subheader("Review Gates")
+    st.dataframe(board["review_gates"], use_container_width=True, hide_index=True)
+
+    st.subheader("Role Signoffs")
+    st.dataframe(board["role_signoffs"], use_container_width=True, hide_index=True)
+
+    st.subheader("Owner Action Plan")
+    st.dataframe(board["owner_action_plan"], use_container_width=True, hide_index=True)
+
+    st.subheader("Artifact Handoffs")
+    st.dataframe(board["artifact_handoffs"], use_container_width=True, hide_index=True)
+
+    st.subheader("Run Transparency")
+    st.json(board["run_transparency"])
+
+    pack = st.session_state.get("escalation_decision_pack")
+    if pack:
+        st.caption(f"Markdown: {pack['markdown_path']}")
+        st.caption(f"JSON: {pack['json_path']}")
+        st.download_button(
+            "Download Escalation Decision Pack",
+            data=pack["markdown"],
+            file_name=f"{pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.dataframe(pack["pack"]["executive_decision_table"], use_container_width=True, hide_index=True)
+        st.markdown(pack["markdown"])
+        with st.expander("Escalation Decision Pack JSON"):
             st.json(pack["pack"])

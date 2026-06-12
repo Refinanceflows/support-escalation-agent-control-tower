@@ -314,6 +314,22 @@ def run_with_http_server() -> dict | None:
         )
         escalation_quality_pack_response.raise_for_status()
         result["escalation_quality_pack"] = escalation_quality_pack_response.json()
+        escalation_decision_response = requests.get(
+            f"{BASE}/escalations/decision-board",
+            headers=headers,
+            params={"run_id": run_id},
+            timeout=60,
+        )
+        escalation_decision_response.raise_for_status()
+        result["escalation_decision_board"] = escalation_decision_response.json()
+        escalation_decision_pack_response = requests.post(
+            f"{BASE}/escalations/decision-pack",
+            headers=headers,
+            params={"run_id": run_id},
+            timeout=60,
+        )
+        escalation_decision_pack_response.raise_for_status()
+        result["escalation_decision_pack"] = escalation_decision_pack_response.json()
         support_ops_response = requests.get(
             f"{BASE}/ops/crew-plan",
             headers=headers,
@@ -848,6 +864,20 @@ def run_in_process() -> dict:
         )
         escalation_quality_pack_response.raise_for_status()
         result["escalation_quality_pack"] = escalation_quality_pack_response.json()
+        escalation_decision_response = client.get(
+            "/escalations/decision-board",
+            headers={"x-api-key": token},
+            params={"run_id": run_id},
+        )
+        escalation_decision_response.raise_for_status()
+        result["escalation_decision_board"] = escalation_decision_response.json()
+        escalation_decision_pack_response = client.post(
+            "/escalations/decision-pack",
+            headers={"x-api-key": token},
+            params={"run_id": run_id},
+        )
+        escalation_decision_pack_response.raise_for_status()
+        result["escalation_decision_pack"] = escalation_decision_pack_response.json()
         support_ops_response = client.get("/ops/crew-plan", headers={"x-api-key": token})
         support_ops_response.raise_for_status()
         result["support_ops_crew_plan"] = support_ops_response.json()
@@ -1063,6 +1093,8 @@ def main():
     communication_quality_pack = result["communication_quality_pack"]
     escalation_quality = result["escalation_quality_audit"]
     escalation_quality_pack = result["escalation_quality_pack"]
+    escalation_decision = result["escalation_decision_board"]
+    escalation_decision_pack = result["escalation_decision_pack"]
     support_ops_crew_plan = result["support_ops_crew_plan"]
     support_ops_pack = result["support_ops_pack"]
     support_ops_sandbox = result["support_ops_sandbox"]
@@ -1250,6 +1282,15 @@ def main():
     )
     print("Escalation Quality Pack:", escalation_quality_pack["markdown_path"])
     print("Escalation Quality JSON:", escalation_quality_pack["json_path"])
+    print(
+        "Escalation Decision Board:",
+        escalation_decision["decision_status"],
+        f"score={escalation_decision['decision_score']}",
+        f"exposure=${escalation_decision['signal_rollup']['finance_exposure_usd']:,.2f}",
+        f"gates={len(escalation_decision['review_gates'])}",
+    )
+    print("Escalation Decision Pack:", escalation_decision_pack["markdown_path"])
+    print("Escalation Decision JSON:", escalation_decision_pack["json_path"])
     print(
         "Support Ops Crews:",
         support_ops_crew_plan["readiness_status"],

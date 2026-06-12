@@ -81,6 +81,10 @@ VERIFY_COMMANDS = [
         r"app dashboard docs README.md tests scripts"
     ),
     (
+        r'rg "escalations/decision-board|escalations/decision-pack|Escalation Decision Board|'
+        r'escalation_decision_packs|decision gate" app dashboard docs README.md tests scripts'
+    ),
+    (
         r'rg "policies/drift-audit|policies/drift-pack|Policy Drift|'
         r'policy_drift_packs|decision drift" app dashboard docs README.md tests scripts'
     ),
@@ -150,6 +154,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /ops/agent-bus-pack",
     "GET /observability/trace-eval-lab",
     "POST /observability/eval-pack",
+    "GET /escalations/decision-board",
+    "POST /escalations/decision-pack",
     "GET /ops/daily-brief",
     "POST /ops/daily-brief-pack",
 ]

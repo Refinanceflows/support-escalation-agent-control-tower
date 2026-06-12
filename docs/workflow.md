@@ -351,6 +351,12 @@ The health score is deterministic and local. It starts at 100 and subtracts weig
 
 `POST /customers/{customer_id_or_name}/renewal-review` writes Markdown and JSON under `data/renewal_reviews/`. The review packages executive summary, support evidence, renewal blockers, SLA drag components, customer-success review fields, owner actions, assumptions, and limitations for an account renewal meeting without calling CRM, billing, Zendesk, Jira, Slack, Azure, OpenAI, or external services.
 
+## Escalation Decision Board
+
+`GET /escalations/decision-board` is the approval-ready gate before customer-facing or engineering-facing dispatch. It composes local Finance Impact, Engineering Escalation Quality, Customer Communication Quality, and Support Ops Crew Plan evidence into a decision status, score, risk statement, role signoffs, review gates, owner actions, artifact handoffs, and run transparency.
+
+`POST /escalations/decision-pack` writes Markdown and JSON under `data/escalation_decision_packs/`. The pack includes an executive decision table and acceptance criteria so a human incident owner can decide whether to approve, hold, or revise the escalation without invoking Jira, Slack, CRM, finance systems, Azure, OpenAI, or external adapters.
+
 ## Routing
 
 High-SLA-risk tickets draft an engineering escalation. Low-confidence or risky actions also require approval. Because all outbound customer and engineering actions require approval, the approval gate is universal by design.

@@ -21,6 +21,7 @@ from app.services.daily_ops_brief import ExecutiveDailyOpsBriefService
 from app.services.demo import DemoService
 from app.services.drills import DrillService
 from app.services.evidence_retention import EvidenceRetentionService
+from app.services.escalation_decision import EscalationDecisionService
 from app.services.escalation_quality import EscalationQualityService
 from app.services.final_handoff import FinalHandoffService
 from app.services.finance_impact import FinanceImpactService
@@ -451,4 +452,15 @@ class ServiceContainer:
             self.audit,
             Path("sample_data/eval_dataset.json"),
             settings.state_file.parent / "observability_eval_packs",
+        )
+        self.escalation_decision = EscalationDecisionService(
+            self.store,
+            self.tickets,
+            self.workflow,
+            self.finance_impact,
+            self.escalation_quality,
+            self.communication_quality,
+            self.support_ops,
+            self.audit,
+            settings.state_file.parent / "escalation_decision_packs",
         )

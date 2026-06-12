@@ -279,6 +279,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /escalations/quality-pack`
   Writes Markdown and JSON under the ignored local escalation quality folder, normally `data/escalation_quality_packs/`. The pack packages the escalation audit, reviewer actions, role-crew handoffs, artifact handoffs, and run transparency for support engineering review. It is local/mock only and never creates Jira issues or Slack alerts.
 
+- `GET /escalations/decision-board`
+  Returns an approval-ready decision board for a supplied, latest, or deterministic sample run. The response composes local Finance Impact, Engineering Escalation Quality, Customer Communication Quality, and Support Ops Crew Plan evidence into decision status, score, role signoffs, review gates, owner actions, artifact handoffs, run transparency, repo-radar patterns, proof commands, and limitations.
+
+- `POST /escalations/decision-pack`
+  Writes Markdown and JSON under the ignored local escalation decision folder, normally `data/escalation_decision_packs/`. The pack includes the decision board, executive decision table, handoff acceptance criteria, proof commands, and local/mock limitations. It does not approve customer updates, create Jira issues, page Slack, call finance systems, or invoke external providers.
+
 - `GET /git/readiness`
   Returns GitHub Push Readiness and Branch Hygiene checks from read-only local git inspection. The response includes git repo detection, current branch, tracked/untracked/modified/ignored summary, generated artifact directories that should stay ignored, changed source/doc/test/dashboard buckets, suspicious large/generated files, required GitHub Actions workflow presence, README final handoff mention, `.env.example` presence, dirty-worktree guidance, and recommended commit groups. It does not call GitHub APIs or mutate the repository.
 

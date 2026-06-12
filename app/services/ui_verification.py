@@ -72,6 +72,7 @@ EXPECTED_VIEWS = [
     "Tool Governance",
     "Agent Bus",
     "Trace Eval Lab",
+    "Escalation Decision Board",
 ]
 
 EXPECTED_ENDPOINTS = [
@@ -300,6 +301,18 @@ EXPECTED_ENDPOINTS = [
     {
         "endpoint": "POST /escalations/quality-pack",
         "purpose": "Engineering Escalation Quality Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "GET /escalations/decision-board",
+        "purpose": "Approval-ready escalation decision board across finance, quality, support ops, and HITL gates.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /escalations/decision-pack",
+        "purpose": "Escalation Decision Pack export.",
         "dashboard_reference_required": True,
         "route_required": True,
     },
@@ -817,6 +830,11 @@ GENERATED_ARTIFACT_TABS = [
         "producer_endpoint": "POST /observability/eval-pack",
         "artifact_directory": "data/observability_eval_packs",
     },
+    {
+        "tab_label": "Escalation Decision Board",
+        "producer_endpoint": "POST /escalations/decision-pack",
+        "artifact_directory": "data/escalation_decision_packs",
+    },
 ]
 
 TROUBLESHOOTING = [
@@ -1168,6 +1186,11 @@ class UIVerificationService:
                 "view": "Escalation Quality",
                 "placeholder": "screenshots/escalation-quality-review-gate.png",
                 "what_to_capture": "Engineering escalation gate, actionability score, reviewer actions, and generated pack paths.",
+            },
+            {
+                "view": "Escalation Decision Board",
+                "placeholder": "screenshots/escalation-decision-board.png",
+                "what_to_capture": "Decision status, finance exposure, role signoffs, review gates, owner actions, and generated pack paths.",
             },
             {
                 "view": "Tool Governance",

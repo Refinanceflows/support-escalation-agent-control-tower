@@ -532,6 +532,22 @@ async def escalation_quality_pack(request: Request, run_id: str | None = None):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
 
 
+@router.get("/escalations/decision-board", dependencies=[Depends(require_api_key)])
+async def escalation_decision_board(request: Request, run_id: str | None = None):
+    try:
+        return await get_container(request).escalation_decision.decision_board(run_id)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
+@router.post("/escalations/decision-pack", dependencies=[Depends(require_api_key)])
+async def escalation_decision_pack(request: Request, run_id: str | None = None):
+    try:
+        return await get_container(request).escalation_decision.export_decision_pack(run_id)
+    except KeyError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found") from None
+
+
 @router.get("/git/readiness", dependencies=[Depends(require_api_key)])
 async def git_readiness(request: Request):
     return await get_container(request).git_readiness.readiness()

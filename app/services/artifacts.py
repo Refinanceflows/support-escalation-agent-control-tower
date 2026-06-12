@@ -200,6 +200,13 @@ EXTRA_ARTIFACTS = [
         "formats": ["markdown", "json"],
         "reviewer_purpose": "Analyzes trace health, retrieval grounding, token/cost visibility, and baseline-vs-strict eval experiment comparisons for support escalation runs.",
     },
+    {
+        "name": "Escalation Decision Pack",
+        "directory": "data/escalation_decision_packs",
+        "producer": "POST /escalations/decision-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Aggregates finance, engineering quality, communication quality, support-ops delegation, role signoffs, review gates, and run transparency into an approval-ready escalation decision board.",
+    },
 ]
 
 REVIEWER_PURPOSES = {
@@ -245,6 +252,7 @@ REVIEWER_PURPOSES = {
     "data/provider_failover_packs": "Proves optional OpenAI/Azure activation states fall back locally or fail closed without external calls, while preserving human approval and token/cost visibility.",
     "data/agent_bus_packs": "Audits local JSONL supervisor/worker/verifier/research/UI bridge handoffs, review gates, run transparency, and UI automation boundaries.",
     "data/observability_eval_packs": "Analyzes trace health, retrieval grounding, token/cost visibility, and baseline-vs-strict eval experiment comparisons for support escalation runs.",
+    "data/escalation_decision_packs": "Aggregates finance, quality, support-ops, role signoff, and review-gate evidence for approval-ready escalation decisions.",
     "data/autonomy_governance_packs": EXTRA_ARTIFACTS[9]["reviewer_purpose"],
     "data/workflow_recovery_packs": EXTRA_ARTIFACTS[10]["reviewer_purpose"],
     "data/communication_quality_packs": EXTRA_ARTIFACTS[11]["reviewer_purpose"],
