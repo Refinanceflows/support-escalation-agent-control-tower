@@ -215,6 +215,24 @@ class PolicyRolloutPackRequest(PolicyRolloutRequest):
     pass
 
 
+class PolicyDriftRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    baseline: PolicyChangeKnobs = Field(default_factory=PolicyChangeKnobs)
+    current: PolicyChangeKnobs = Field(
+        default_factory=lambda: PolicyChangeKnobs(
+            confidence_cutoff=0.72,
+            sla_high_risk_threshold=0.65,
+            auto_approval_max_blast_radius=25,
+        )
+    )
+    max_runs: int = Field(default=20, ge=1, le=100)
+    include_pending: bool = True
+
+
+class PolicyDriftPackRequest(PolicyDriftRequest):
+    pass
+
+
 class IncidentNarrativeRequest(BaseModel):
     model_config = ConfigDict(extra="ignore")
     run_id: str | None = None

@@ -152,6 +152,13 @@ EXTRA_ARTIFACTS = [
         "reviewer_purpose": "Turns policy simulation deltas into fail-closed rollout gates, role signoffs, canary phases, rollback triggers, and reviewer handoffs.",
     },
     {
+        "name": "Policy Drift Reviewer Pack",
+        "directory": "data/policy_drift_packs",
+        "producer": "POST /policies/drift-pack",
+        "formats": ["markdown", "json"],
+        "reviewer_purpose": "Detects policy decision drift over persisted local runs with run IDs, trace IDs, review gates, and owner actions.",
+    },
+    {
         "name": "Postmortem Corrective Action Review Pack",
         "directory": "data/postmortem_review_packs",
         "producer": "POST /incidents/postmortem-review-pack",
@@ -207,7 +214,8 @@ REVIEWER_PURPOSES = {
     "data/policy_packs": "Policy guardrail proof for blocked/gated actions, approvals, and risk reasoning.",
     "data/policy_change_packs": "Policy-change simulation proof for approval thresholds, confidence cutoffs, SLA routing, and blast-radius scoring.",
     "data/policy_rollout_packs": EXTRA_ARTIFACTS[17]["reviewer_purpose"],
-    "data/postmortem_review_packs": EXTRA_ARTIFACTS[18]["reviewer_purpose"],
+    "data/policy_drift_packs": "Policy decision drift proof over persisted local runs with review gates and traceable owner actions.",
+    "data/postmortem_review_packs": EXTRA_ARTIFACTS[19]["reviewer_purpose"],
     "data/leadership_reviews": "Leadership-ready KPI and automation-readiness evidence.",
     "data/kb_refresh_plans": "Knowledge quality audit findings turned into owner-ready refresh work.",
     "data/incident_narratives": "Executive incident narrative and customer-impact timeline evidence.",
@@ -240,13 +248,13 @@ REVIEWER_PURPOSES = {
     "data/autonomy_governance_packs": EXTRA_ARTIFACTS[9]["reviewer_purpose"],
     "data/workflow_recovery_packs": EXTRA_ARTIFACTS[10]["reviewer_purpose"],
     "data/communication_quality_packs": EXTRA_ARTIFACTS[11]["reviewer_purpose"],
-    "data/escalation_quality_packs": EXTRA_ARTIFACTS[19]["reviewer_purpose"],
+    "data/escalation_quality_packs": EXTRA_ARTIFACTS[20]["reviewer_purpose"],
     "data/support_ops_packs": EXTRA_ARTIFACTS[12]["reviewer_purpose"],
     "data/support_ops_sandbox": EXTRA_ARTIFACTS[13]["reviewer_purpose"],
     "data/tool_governance_packs": EXTRA_ARTIFACTS[14]["reviewer_purpose"],
     "data/renewal_control_packs": EXTRA_ARTIFACTS[15]["reviewer_purpose"],
     "data/renewal_handoff_packs": "Gates high-risk renewal account handoffs with role playbooks, artifact handoff checks, blocked external commitments, and run transparency.",
-    "data/support_ops_readiness": EXTRA_ARTIFACTS[20]["reviewer_purpose"],
+    "data/support_ops_readiness": EXTRA_ARTIFACTS[21]["reviewer_purpose"],
 }
 
 

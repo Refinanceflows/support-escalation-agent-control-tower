@@ -37,6 +37,7 @@ The default mode uses deterministic local/mock providers, so a fresh clone runs 
 - Agent Policy Guardrail Center with approval policy simulation for low confidence, SLA pressure, enterprise/VIP tier, external vs internal actions, adapter health, replay risk, and KB grounding
 - Policy pack export under `data/policy_packs/` with simulated policies, matched rules, approval matrix, sample outcomes, verification commands, JD skills, and interviewer talking points
 - Agent Policy Simulation Pack export under `data/policy_change_packs/` with approval threshold, confidence cutoff, SLA routing, blast-radius, scenario delta, and rollout recommendation evidence
+- Policy Drift Reviewer Pack under `data/policy_drift_packs/`, comparing persisted local runs against baseline/current policy knobs with decision drift, SLA route drift, review gates, trace IDs, and owner actions
 - Customer Impact Timeline and Executive Incident Narrative export under `data/incident_narratives/`, connecting ticket intake, triage, approval, dispatch, policy, replay, SLO, account health, and owner next steps into one incident story
 - Postmortem RCA + Corrective Action Tracking Pack under `data/rca_packs/`, with root cause classification, contributing factors, corrective action owners, due dates, customer follow-up state, recurrence risk, trace/audit links, proof commands, and deterministic scenario coverage
 - Postmortem Review Board and Corrective Action Review Pack under `data/postmortem_review_packs/`, converting RCA actions into role-owned closure lanes, delegated crews, signoffs, closure gates, run transparency, and artifact handoffs
@@ -205,6 +206,8 @@ The command calls `POST /demo/evidence-pack`, `POST /ops/operator-readiness-pack
 24b. Export `POST /policies/change-pack` to write an Agent Policy Simulation Pack under `data/policy_change_packs/`.
 24c. Run `POST /policies/rollout-plan` to convert those deltas into fail-closed review gates, canary phases, role signoffs, rollback triggers, and run-transparency evidence.
 24d. Export `POST /policies/rollout-pack` to write a Policy Rollout Review Pack under `data/policy_rollout_packs/`.
+24e. Run `POST /policies/drift-audit` to compare persisted runs against baseline/current policy knobs and identify decision or SLA-route drift.
+24f. Export `POST /policies/drift-pack` to write a Policy Drift Reviewer Pack under `data/policy_drift_packs/`.
 25. Run `POST /incidents/timeline` to build the Customer Impact Timeline for a supplied, latest, or deterministic sample run.
 26. Export `POST /incidents/executive-narrative` to write a Markdown/JSON executive incident story under `data/incident_narratives/`.
 27. Review `GET /incidents/postmortem-summary` for root cause, corrective actions, customer follow-up state, recurrence risk, trace links, and scenario coverage.
@@ -354,6 +357,8 @@ Important variables:
 - `POST /policies/change-pack`: writes Markdown and JSON under `data/policy_change_packs/` with scenario-level policy-change deltas, SLA routing impact, rollout recommendation, and reviewer talking points.
 - `POST /policies/rollout-plan`: turns policy-change deltas into deterministic go/no-go gates, canary rollout phases, role signoffs, rollback triggers, run transparency, and artifact handoffs.
 - `POST /policies/rollout-pack`: writes Markdown and JSON under `data/policy_rollout_packs/` for reviewer approval before policy promotion.
+- `POST /policies/drift-audit`: compares persisted local runs against baseline/current policy knobs, flags decision drift, SLA route drift, new auto-allow risk, review gates, owner actions, and traceable run evidence.
+- `POST /policies/drift-pack`: writes Markdown and JSON under `data/policy_drift_packs/` with the drift audit, reviewer gates, acceptance criteria, proof commands, and local/mock limitations.
 - `POST /incidents/timeline`: returns ordered Customer Impact Timeline events, impact summary, internal/external action split, policy/replay annotations, unresolved risks, owner next steps, and evidence artifact links for a supplied, latest, or sample run.
 - `POST /incidents/executive-narrative`: writes Markdown and JSON under `data/incident_narratives/` with executive summary, timeline, approval evidence, policy decision, replay risk, SLO posture, JD skills, and interviewer talking points.
 - `GET /incidents/postmortem-summary`: returns Postmortem RCA summary with severity, root cause category, contributing factors, approval/comms state, trace links, corrective actions, recurrence risk, customer follow-up state, readiness, and RCA scenario coverage.

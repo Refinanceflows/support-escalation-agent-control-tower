@@ -54,6 +54,12 @@ Auth: send `x-api-key: demo-control-tower-key` or `Authorization: Bearer demo-co
 - `POST /policies/rollout-pack`
   Writes Markdown and JSON under `data/policy_rollout_packs/` with the rollout gate, canary rollout plan, role signoffs, rollback triggers, artifact handoffs, local verification commands, and reviewer acceptance criteria.
 
+- `POST /policies/drift-audit`
+  Compares persisted local workflow runs against baseline and current policy knobs. The response flags decision drift, SLA route drift, new auto-allowed runs, review gates, owner actions, run IDs, trace IDs, and local proof commands. It reads local state only and does not mutate policy configuration.
+
+- `POST /policies/drift-pack`
+  Writes Markdown and JSON under `data/policy_drift_packs/` with the Policy Drift audit, review gates, owner action plan, acceptance criteria, proof commands, and local/mock limitations.
+
 - `POST /incidents/timeline`
   Builds the Customer Impact Timeline for a supplied `run_id`, the latest local run, or a deterministic sample fallback when omitted. The response includes ordered timeline events, customer impact summary, internal/external action split, policy guardrail annotations, Replay Lab annotations, unresolved risks, owner next steps, impact status, and evidence artifact links. It reuses existing local exports such as incident brief, remediation checklist, weekly review, account brief, optimization report, and replay report.
 

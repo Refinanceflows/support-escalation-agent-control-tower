@@ -12,6 +12,8 @@ from app.models import (
     IncidentNarrativeRequest,
     PolicyChangePackRequest,
     PolicyChangeSimulationRequest,
+    PolicyDriftPackRequest,
+    PolicyDriftRequest,
     PolicyExportRequest,
     PolicyRolloutPackRequest,
     PolicyRolloutRequest,
@@ -191,6 +193,22 @@ async def policy_rollout_pack(
     payload: PolicyRolloutPackRequest | None = None,
 ):
     return await get_container(request).policy_rollout.export_pack(payload)
+
+
+@router.post("/policies/drift-audit", dependencies=[Depends(require_api_key)])
+async def policy_drift_audit(
+    request: Request,
+    payload: PolicyDriftRequest | None = None,
+):
+    return await get_container(request).policy_drift.drift_audit(payload)
+
+
+@router.post("/policies/drift-pack", dependencies=[Depends(require_api_key)])
+async def policy_drift_pack(
+    request: Request,
+    payload: PolicyDriftPackRequest | None = None,
+):
+    return await get_container(request).policy_drift.export_pack(payload)
 
 
 @router.post("/incidents/timeline", dependencies=[Depends(require_api_key)])

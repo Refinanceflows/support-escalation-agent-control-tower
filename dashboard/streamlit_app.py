@@ -1078,6 +1078,67 @@ with tabs[18]:
         )
         st.markdown(rollout_pack["markdown"])
 
+    st.divider()
+    st.subheader("Policy Drift Monitor")
+    dleft, dright = st.columns(2)
+    drift_max_runs = dleft.slider("Drift max runs", 1, 100, 20, 1)
+    drift_include_pending = dright.checkbox("Include pending approvals", value=True)
+    drift_payload = {
+        "baseline": change_payload["baseline"],
+        "current": change_payload["proposed"],
+        "max_runs": drift_max_runs,
+        "include_pending": drift_include_pending,
+    }
+    drift_left, drift_right = st.columns(2)
+    if drift_left.button("Run Drift Audit", use_container_width=True):
+        drift_audit = api("POST", "/policies/drift-audit", drift_payload)
+        st.session_state["policy_drift_audit"] = drift_audit
+    if drift_right.button("Export Drift Pack", use_container_width=True):
+        drift_pack = api("POST", "/policies/drift-pack", drift_payload)
+        st.session_state["policy_drift_pack"] = drift_pack
+        st.session_state["policy_drift_audit"] = drift_pack["pack"]["drift_audit"]
+        st.success(f"Policy drift pack exported: {drift_pack['markdown_path']}")
+
+    drift_audit = st.session_state.get("policy_drift_audit")
+    if drift_audit:
+        summary = drift_audit["summary"]
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("Drift status", drift_audit["status"])
+        m2.metric("Evaluated runs", summary["evaluated_run_count"])
+        m3.metric("Drifted runs", summary["drifted_run_count"])
+        m4.metric("New auto-allow", summary["new_auto_allowed_count"])
+        st.dataframe(drift_audit["review_gates"], use_container_width=True, hide_index=True)
+        st.dataframe(
+            [
+                {
+                    "run_id": row["run_id"],
+                    "ticket_id": row["ticket_id"],
+                    "severity": row["severity"],
+                    "decision": f"{row['baseline']['decision']} -> {row['current']['decision']}",
+                    "sla_route": f"{row['baseline']['sla_route']} -> {row['current']['sla_route']}",
+                    "changed": ", ".join(row["changed_fields"]) or "none",
+                    "action": row["recommended_action"],
+                }
+                for row in drift_audit["drift_rows"]
+            ],
+            use_container_width=True,
+            hide_index=True,
+        )
+        with st.expander("Policy Drift JSON"):
+            st.json(drift_audit)
+
+    drift_pack = st.session_state.get("policy_drift_pack")
+    if drift_pack:
+        st.caption(f"Markdown: {drift_pack['markdown_path']}")
+        st.caption(f"JSON: {drift_pack['json_path']}")
+        st.download_button(
+            "Download Policy Drift Pack",
+            data=drift_pack["markdown"],
+            file_name=f"{drift_pack['pack_id']}.md",
+            mime="text/markdown",
+        )
+        st.markdown(drift_pack["markdown"])
+
 with tabs[19]:
     run_id = st.text_input("Incident narrative run ID", value=st.session_state.get("run_id", ""))
     left, right = st.columns(2)

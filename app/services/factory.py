@@ -36,6 +36,7 @@ from app.services.observability_eval import ObservabilityEvalService
 from app.services.outbox import OutboxService
 from app.services.playbooks import PlaybookService
 from app.services.policy_change_simulation import PolicyChangeSimulationService
+from app.services.policy_drift import PolicyDriftService
 from app.services.policy_guardrails import PolicyGuardrailService
 from app.services.policy_rollout import PolicyRolloutService
 from app.services.postmortem_rca import PostmortemRcaService
@@ -160,6 +161,11 @@ class ServiceContainer:
             self.policy_change_simulation,
             self.audit,
             settings.state_file.parent / "policy_rollout_packs",
+        )
+        self.policy_drift = PolicyDriftService(
+            self.store,
+            self.audit,
+            settings.state_file.parent / "policy_drift_packs",
         )
         self.incident_narratives = IncidentNarrativeService(
             self.store,

@@ -81,6 +81,10 @@ VERIFY_COMMANDS = [
         r"app dashboard docs README.md tests scripts"
     ),
     (
+        r'rg "policies/drift-audit|policies/drift-pack|Policy Drift|'
+        r'policy_drift_packs|decision drift" app dashboard docs README.md tests scripts'
+    ),
+    (
         r"Get-ChildItem -Recurse -File data\api_contracts -ErrorAction SilentlyContinue "
         r"| Select-Object FullName,Length,LastWriteTime"
     ),
@@ -128,6 +132,8 @@ IMPORTANT_ENDPOINTS = [
     "POST /providers/readiness-pack",
     "GET /providers/failover-drill",
     "POST /providers/failover-pack",
+    "POST /policies/drift-audit",
+    "POST /policies/drift-pack",
     "GET /governance/autonomy-audit",
     "POST /governance/autonomy-pack",
     "GET /workflows/durability-audit",
@@ -420,6 +426,8 @@ class ApiContractService:
             "POST /incidents/rca-pack",
             "GET /incidents/postmortem-review-board",
             "POST /incidents/postmortem-review-pack",
+            "POST /policies/drift-audit",
+            "POST /policies/drift-pack",
             "GET /governance/autonomy-audit",
             "POST /governance/autonomy-pack",
             "GET /workflows/durability-audit",

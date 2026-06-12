@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+from uuid import uuid4
 
 import requests
 from fastapi.testclient import TestClient
@@ -13,6 +14,16 @@ from app.core.config import Settings  # noqa: E402
 
 
 BASE = "http://localhost:8000"
+
+
+def fresh_demo_state_file() -> Path:
+    state_file = ROOT / "data" / "demo_control_tower_state.db"
+    for path in state_file.parent.glob(f"{state_file.name}*"):
+        try:
+            path.unlink(missing_ok=True)
+        except PermissionError:
+            return ROOT / "data" / f"demo_control_tower_state_{uuid4().hex[:8]}.db"
+    return state_file
 
 
 def run_with_http_server() -> dict | None:
@@ -87,6 +98,26 @@ def run_with_http_server() -> dict | None:
         )
         policy_rollout_response.raise_for_status()
         result["policy_rollout_pack"] = policy_rollout_response.json()
+        policy_drift_response = requests.post(
+            f"{BASE}/policies/drift-pack",
+            headers=headers,
+            json={
+                "baseline": {
+                    "confidence_cutoff": 0.62,
+                    "sla_high_risk_threshold": 0.70,
+                    "auto_approval_max_blast_radius": 35,
+                },
+                "current": {
+                    "confidence_cutoff": 0.72,
+                    "sla_high_risk_threshold": 0.65,
+                    "auto_approval_max_blast_radius": 25,
+                },
+                "max_runs": 20,
+            },
+            timeout=60,
+        )
+        policy_drift_response.raise_for_status()
+        result["policy_drift_pack"] = policy_drift_response.json()
         scorecard_response = requests.get(
             f"{BASE}/leadership/scorecard",
             headers=headers,
@@ -641,9 +672,7 @@ def run_with_http_server() -> dict | None:
 
 
 def run_in_process() -> dict:
-    state_file = ROOT / "data" / "demo_control_tower_state.db"
-    for path in state_file.parent.glob(f"{state_file.name}*"):
-        path.unlink(missing_ok=True)
+    state_file = fresh_demo_state_file()
     app = create_app(Settings(state_file=state_file))
     with TestClient(app) as client:
         token_payload = client.post("/auth/demo-token").json()
@@ -707,6 +736,25 @@ def run_in_process() -> dict:
         )
         policy_rollout_response.raise_for_status()
         result["policy_rollout_pack"] = policy_rollout_response.json()
+        policy_drift_response = client.post(
+            "/policies/drift-pack",
+            headers={"x-api-key": token},
+            json={
+                "baseline": {
+                    "confidence_cutoff": 0.62,
+                    "sla_high_risk_threshold": 0.70,
+                    "auto_approval_max_blast_radius": 35,
+                },
+                "current": {
+                    "confidence_cutoff": 0.72,
+                    "sla_high_risk_threshold": 0.65,
+                    "auto_approval_max_blast_radius": 25,
+                },
+                "max_runs": 20,
+            },
+        )
+        policy_drift_response.raise_for_status()
+        result["policy_drift_pack"] = policy_drift_response.json()
         scorecard_response = client.get("/leadership/scorecard", headers={"x-api-key": token})
         scorecard_response.raise_for_status()
         result["leadership_scorecard"] = scorecard_response.json()
@@ -986,6 +1034,7 @@ def main():
     policy = result["policy_pack"]
     policy_change_pack = result["policy_change_pack"]
     policy_rollout_pack = result["policy_rollout_pack"]
+    policy_drift_pack = result["policy_drift_pack"]
     leadership = result["leadership_scorecard"]
     leadership_review = result["leadership_review_pack"]
     kb_audit = result["knowledge_quality_audit"]
@@ -1067,6 +1116,7 @@ def main():
     policy_simulation = policy["pack"]["primary_simulation"]
     policy_change = policy_change_pack["pack"]["simulation"]
     policy_rollout = policy_rollout_pack["pack"]["rollout_plan"]
+    policy_drift = policy_drift_pack["pack"]["drift_audit"]
 
     print("Mode:", result["mode"])
     print("Scenario:", scenario["scenario_id"])
@@ -1098,6 +1148,13 @@ def main():
     )
     print("Policy Rollout Pack:", policy_rollout_pack["markdown_path"])
     print("Policy Rollout JSON:", policy_rollout_pack["json_path"])
+    print(
+        "Policy drift:",
+        policy_drift["status"],
+        f"drifted_runs={policy_drift['summary']['drifted_run_count']}",
+    )
+    print("Policy Drift Pack:", policy_drift_pack["markdown_path"])
+    print("Policy Drift JSON:", policy_drift_pack["json_path"])
     print(
         "Leadership readiness:",
         leadership["overall_score"],

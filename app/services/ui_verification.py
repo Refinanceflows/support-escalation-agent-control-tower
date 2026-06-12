@@ -148,6 +148,18 @@ EXPECTED_ENDPOINTS = [
         "route_required": True,
     },
     {
+        "endpoint": "POST /policies/drift-audit",
+        "purpose": "Policy drift audit over persisted local workflow runs.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
+        "endpoint": "POST /policies/drift-pack",
+        "purpose": "Policy Drift Reviewer Pack export.",
+        "dashboard_reference_required": True,
+        "route_required": True,
+    },
+    {
         "endpoint": "POST /incidents/executive-narrative",
         "purpose": "Incident Narrative artifact export.",
         "dashboard_reference_required": True,
@@ -599,6 +611,11 @@ GENERATED_ARTIFACT_TABS = [
         "tab_label": "Policy Guardrails",
         "producer_endpoint": "POST /policies/rollout-pack",
         "artifact_directory": "data/policy_rollout_packs",
+    },
+    {
+        "tab_label": "Policy Guardrails",
+        "producer_endpoint": "POST /policies/drift-pack",
+        "artifact_directory": "data/policy_drift_packs",
     },
     {
         "tab_label": "Provider Readiness",
